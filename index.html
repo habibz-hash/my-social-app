@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widows2030 | پیش‌نمایش</title>
+    
+    <style>
+        /* --- بخش CSS (استایل‌های مدرن و دارک‌مود) --- */
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Tahoma', 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 1px solid #333;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: #ff9800;
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        header p {
+            color: #888;
+        }
+
+        /* بخش آپلود (شبیه‌سازی شده) */
+        .upload-section {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px dashed #444;
+            margin-bottom: 50px;
+        }
+
+        .upload-section input[type="file"] {
+            display: block;
+            margin: 0 auto 20px;
+            color: #ccc;
+        }
+
+        .btn-upload {
+            background-color: #ff9800;
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .btn-upload:hover {
+            background-color: #e68900;
+            transform: scale(1.05);
+        }
+
+        /* گالری ویدیوها */
+        .gallery-title {
+            text-align: right;
+            margin-bottom: 20px;
+            border-right: 4px solid #ff9800;
+            padding-right: 15px;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .video-card {
+            background: #1e1e1e;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: 0.3s;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-card video {
+            width: 100%;
+            display: block;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-info h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+            color: #ff9800;
+        }
+
+        .video-info p {
+            font-size: 0.9rem;
+            color: #bbb;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .status-msg {
+            margin-top: 15px;
+            color: #ff9800;
+            font-weight: bold;
+        }
+
+        /* ریسپانسیو برای موبایل */
+        @media (max-width: 600px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Widows2030</h1>
+            <p>پلتفرم آینده‌نگرانه برای اشتراک‌گذاری محتوای علمی</p>
+        </header>
+
+        <!-- بخش آپلود (فعلاً فقط شبیه‌سازی می‌شود) -->
+        <section class="upload-section">
+            <h3>آپلود ویدیوی جدید</h3>
+            <input type="file" id="videoInput" accept="video/*">
+            <button class="btn-upload" onclick="simulateUpload()">شروع آپلود (شبیه‌سازی)</button>
+            <div id="statusMsg" class="status-msg"></div>
+        </section>
+
+        <h2 class="gallery-title">ویدیوهای منتشر شده</h2>
+        
+        <!-- گالری ویدیوها -->
+        <div class="video-grid" id="videoGrid">
+            <!-- ویدیوها توسط JavaScript اینجا ساخته می‌شوند -->
+        </div>
+    </div>
+
+    <script>
+        /* --- بخش JavaScript (داده‌های موقت و منطق نمایش) --- */
+
+        // ۱. داده‌های موقت (به جای دیتابیس)
+        const dummyVideos = [
+            {
+                id: 1,
+                title: "آموزش هوش مصنوعی",
+                description: "مقدمه‌ای بر مفاهیم اولیه یادگیری ماشین در سال ۲۰۳۰",
+                url: "https://www.w3schools.com/html/mov_bbb.mp4" // ویدیو تست
+            },
+            {
+                id: 2,
+                title: "فیزیک کوانتوم",
+                description: "چگونه ذرات کوچک جهان را تغییر می‌دهند؟",
+                url: "https://www.w3schools.com/html/movie.mp4" // ویدیو تست ۲
+            },
+            {
+                id: 3,
+                title: "نجوم و فضا",
+                description: "بررسی آخرین اکتشافات در منظومه شمسی",
+                url: "https://www.w3schools.com/html/mov_bbb.mp4"
+            }
+        ];
+
+        // ۲. تابع برای نمایش ویدیوها در گالری
+        function displayVideos() {
+            const grid = document.getElementById('videoGrid');
+            grid.innerHTML = ''; // پاک کردن محتوای قبلی
+
+            dummyVideos.forEach(video => {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                
+                card.innerHTML = `
+                    <video controls>
+                        <source src="${video.url}" type="video/mp4">
+                        مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
+                    </video>
+                    <div class="video-info">
+                        <h3>${video.title}</h3>
+                        <p>${video.description}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ۳. تابع شبیه‌سازی آپلود (چون فعلاً سروری نداریم)
+        function simulateUpload() {
+            const input = document.getElementById('videoInput');
+            const status = document.getElementById('statusMsg');
+
+            if (input.files.length === 0) {
+                status.innerText = "لطفاً ابتدا یک فایل انتخاب کنید!";
+                return;
+            }
+
+            status.innerText = "در حال اتصال به سرور...";
+            
+            // شبیه‌سازی تاخیر شبکه (۲ ثانیه)
+            setTimeout(() => {
+                status.innerText = "آپلود با موفقیت انجام شد! (در نسخه واقعی ذخیره می‌شود)";
+                status.style.color = "#4caf50"; // سبز رنگ
+                
+                // اضافه کردن ویدیوی جدید به لیست موقت برای نمایش فوری
+                const newVideo = {
+                    id: dummyVideos.length + 1,
+                    title: "ویدیوی تازه آپلود شده",
+                    description: "این ویدیو به صورت موقت در حافظه مرورگر شما قرار گرفت.",
+                    url: URL.createObjectURL(input.files[0]) // نمایش ویدیوی خود کاربر
+                };
+                
+                dummyVideos.unshift(newVideo); // اضافه کردن به ابتدای لیست
+                displayVideos(); // بازسازی گالری
+                
+            }, 2000);
+        }
+
+        // اجرای تابع نمایش ویدیوها هنگام لود شدن صفحه
+        window.onload = displayVideos;
+
+    </script>
+</body>
+</html>
