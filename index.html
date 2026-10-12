@@ -2,103 +2,110 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Widows2030 | پایگاه حقیقت علمی</title>
-    <!-- قابلیت PWA برای نصب روی گوشی -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        :root { --accent: #7c5cff; --bg: #07080c; --text: #fff; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: Tahoma, sans-serif; }
-        
-        /* کلاس‌های کاربردی برای تغییر دیدگاه */
-        .view { display: none; height: 100vh; overflow-y: auto; }
-        .view.active { display: block; }
+        :root { --bg: #0a0a0c; --glass: rgba(255, 255, 255, 0.08); --accent: #00e5ff; --text: #e0e0e0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-        /* استایل‌های جست‌وجو */
-        .search-container { padding: 20px; background: #111; }
-        .search-box { width: 100%; padding: 15px; border-radius: 20px; border: none; background: #222; color: #fff; }
+        /* لایه ناوبری */
+        nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #333; z-index: 1000; }
+        .nav-btn { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+
+        /* محتوا */
+        .page { display: none; padding-bottom: 80px; }
+        .active { display: block; }
         
-        /* پروفایل عملیاتی */
-        .profile-card { padding: 40px; text-align: center; }
-        .profile-input { background: transparent; border: 1px solid #444; color: #fff; padding: 10px; width: 80%; border-radius: 10px; text-align: center; }
+        /* طراحی ویدیوها (Reels) */
+        .reel-container { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; }
+        .reel-item { height: 100vh; scroll-snap-align: start; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; position: relative; background: #000; }
+        video { position: absolute; top:0; left:0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+        .ui-layer { z-index: 2; background: linear-gradient(transparent, rgba(0,0,0,0.8)); padding: 20px; border-radius: 20px; }
+
+        /* فرم‌ها */
+        .glass-panel { background: var(--glass); backdrop-filter: blur(10px); padding: 20px; border-radius: 20px; margin: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        input, textarea, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 10px; border: none; background: #222; color: #fff; }
+        button { background: var(--accent); color: #000; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <!-- صفحه خانه (فید) -->
-    <div id="view-home" class="view active">
-        <div id="feed"></div>
-    </div>
+<!-- صفحات -->
+<div id="feed-page" class="page active reel-container">
+    <div id="video-feed"></div>
+</div>
 
-    <!-- صفحه جست‌وجو -->
-    <div id="view-search" class="view">
-        <div class="search-container">
-            <input type="text" id="search-input" class="search-box" placeholder="جست‌وجو در پایگاه علمی...">
-            <div id="search-results" style="margin-top:20px"></div>
-            <button id="web-search-btn" style="display:none; width:100%; padding:15px; background:var(--accent); border:none; color:white; border-radius:10px; margin-top:10px;">جست‌وجو در گوگل</button>
-        </div>
+<div id="upload-page" class="page">
+    <div class="glass-panel" style="margin-top: 50px;">
+        <h2>آپلود داده علمی</h2>
+        <input type="file" id="video-file" accept="video/*">
+        <input type="text" id="video-title" placeholder="عنوان مقاله یا ویدیو">
+        <button onclick="saveVideo()">ثبت در پایگاه</button>
     </div>
+</div>
 
-    <!-- صفحه پروفایل -->
-    <div id="view-profile" class="view">
-        <div class="profile-card">
-            <h2>پروفایل کاربری</h2>
-            <input type="text" id="user-name" class="profile-input" placeholder="نام کاربری خود را وارد کنید">
-            <button onclick="saveProfile()" style="margin-top:10px; padding:10px 20px;">ذخیره تغییرات</button>
-        </div>
-    </div>
-
-    <!-- نویگیشن بار -->
-    <nav style="position:fixed; bottom:0; width:100%; height:60px; background:#000; display:flex; justify-content:space-around; align-items:center; border-top:1px solid #333;">
-        <button onclick="switchView('home')">🏠</button>
-        <button onclick="switchView('search')">⌕</button>
-        <button onclick="switchView('profile')">👤</button>
-    </nav>
+<!-- ناوبری -->
+<nav>
+    <button class="nav-btn" onclick="switchPage('feed-page')">🏠</button>
+    <button class="nav-btn" onclick="switchPage('upload-page')">➕</button>
+</nav>
 
 <script>
-    // سیستم مدیریت وضعیت (State)
-    const state = {
-        user: localStorage.getItem('widows_user') || 'کاربر مهمان',
-        videos: [
-            { title: "سیاهچاله‌ها چیستند؟", tags: ["فضا", "نجوم"] },
-            { title: "هوش مصنوعی و آینده", tags: ["فناوری", "علم"] }
-        ]
+    // --- مدیریت دیتابیس (IndexedDB) ---
+    let db;
+    const dbReq = indexedDB.open("WidowsDB", 1);
+    dbReq.onupgradeneeded = e => {
+        db = e.target.result;
+        db.createObjectStore("videos", { keyPath: "id", autoIncrement: true });
+    };
+    dbReq.onsuccess = e => {
+        db = e.target.result;
+        loadVideos();
     };
 
-    // تعویض ویو (Navigation Logic)
-    function switchView(viewId) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById('view-' + viewId).classList.add('active');
+    // --- عملیات اصلی ---
+    function switchPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
     }
 
-    // موتور جست‌وجوی دوگانه (هوشمند)
-    document.getElementById('search-input').addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        const resultsDiv = document.getElementById('search-results');
-        const webBtn = document.getElementById('web-search-btn');
-        
-        const filtered = state.videos.filter(v => v.title.toLowerCase().includes(query));
-        
-        if (filtered.length > 0) {
-            resultsDiv.innerHTML = filtered.map(v => `<p style="padding:10px; border-bottom:1px solid #333">${v.title}</p>`).join('');
-            webBtn.style.display = 'none';
-        } else {
-            resultsDiv.innerHTML = '<p>موردی یافت نشد.</p>';
-            webBtn.style.display = 'block';
-            webBtn.onclick = () => window.open(`https://www.google.com/search?q=${query}`, '_blank');
-        }
-    });
+    function saveVideo() {
+        const file = document.getElementById('video-file').files[0];
+        const title = document.getElementById('video-title').value;
+        const reader = new FileReader();
 
-    // عملیات ذخیره‌سازی پروفایل
-    function saveProfile() {
-        const name = document.getElementById('user-name').value;
-        localStorage.setItem('widows_user', name);
-        alert('تغییرات ذخیره شد!');
+        reader.onload = e => {
+            const transaction = db.transaction(["videos"], "readwrite");
+            transaction.objectStore("videos").add({ title, video: e.target.result });
+            alert("با موفقیت ثبت شد!");
+            loadVideos();
+        };
+        reader.readAsDataURL(file);
     }
 
-    // مقداردهی اولیه
-    document.getElementById('user-name').value = state.user;
+    function loadVideos() {
+        const feed = document.getElementById('video-feed');
+        feed.innerHTML = '';
+        const transaction = db.transaction(["videos"], "readonly");
+        const store = transaction.objectStore("videos");
+        store.openCursor().onsuccess = e => {
+            const cursor = e.target.result;
+            if (cursor) {
+                const v = cursor.value;
+                feed.innerHTML += `
+                    <div class="reel-item">
+                        <video src="${v.video}" autoplay loop muted></video>
+                        <div class="ui-layer">
+                            <h2>${v.title}</h2>
+                            <p>پایگاه حقیقت علمی | وضعیت: تایید شده</p>
+                        </div>
+                    </div>
+                `;
+                cursor.continue();
+            }
+        };
+    }
 </script>
 </body>
 </html>
