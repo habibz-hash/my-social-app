@@ -1,544 +1,104 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#07080c">
-<title>Widows2030 | پایگاه حقیقت علمی</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Widows2030 | پایگاه حقیقت علمی</title>
+    <!-- قابلیت PWA برای نصب روی گوشی -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        :root { --accent: #7c5cff; --bg: #07080c; --text: #fff; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: Tahoma, sans-serif; }
+        
+        /* کلاس‌های کاربردی برای تغییر دیدگاه */
+        .view { display: none; height: 100vh; overflow-y: auto; }
+        .view.active { display: block; }
 
-<style>
-:root{
-  --bg:#07080c;
-  --panel:#11131a;
-  --panel2:#191c26;
-  --text:#f7f8fb;
-  --muted:#9da3b1;
-  --line:rgba(255,255,255,.1);
-  --accent:#7c5cff;
-  --accent2:#16d9ff;
-  --danger:#ff3f69;
-  --shadow:0 14px 45px rgba(0,0,0,.4);
-}
-body.light{
-  --bg:#f3f5f9;
-  --panel:#fff;
-  --panel2:#e9edf5;
-  --text:#151822;
-  --muted:#606979;
-  --line:rgba(0,0,0,.1);
-  --shadow:0 14px 40px rgba(31,44,70,.12);
-}
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);font-family:Tahoma,"Segoe UI",sans-serif}
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
-.hidden{display:none!important}
-#app{height:100dvh;position:relative;overflow:hidden}
-#feed{
-  height:100%;overflow-y:auto;scroll-snap-type:y mandatory;
-  overscroll-behavior-y:contain;scroll-behavior:smooth;
-  scrollbar-width:none;padding-bottom:68px
-}
-#feed::-webkit-scrollbar{display:none}
-.reel{
-  position:relative;height:100dvh;min-height:560px;
-  scroll-snap-align:start;scroll-snap-stop:always;
-  overflow:hidden;background:#090a0e
-}
-.reel video{
-  position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;background:#090a0e
-}
-.reel:after{
-  content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(180deg,rgba(0,0,0,.63),transparent 22%,transparent 52%,rgba(0,0,0,.84) 100%)
-}
-.topbar{
-  position:fixed;top:0;left:0;right:0;height:68px;z-index:30;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top));
-  background:linear-gradient(#050609cc,transparent);pointer-events:none
-}
-.topbar>*{pointer-events:auto}
-.brand{font-weight:900;font-size:18px;letter-spacing:-.5px}
-.brand small{display:block;color:var(--accent2);font-size:10px;font-weight:500;margin-top:3px}
-.top-actions{display:flex;gap:8px}
-.icon-btn{
-  border:1px solid var(--line);background:#0006;color:#fff;
-  width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:18px
-}
-body.light .icon-btn{color:var(--text);background:#fff9}
-.content{
-  position:absolute;z-index:4;right:18px;left:84px;bottom:88px;
-  text-shadow:0 2px 12px #000
-}
-.user-line{display:flex;align-items:center;gap:9px;margin-bottom:10px}
-.avatar{
-  width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));font-weight:900
-}
-.follow{
-  border:1px solid #fff8;color:#fff;background:#0005;border-radius:8px;
-  padding:6px 12px;font-size:12px
-}
-.content h2{font-size:19px;margin:0 0 7px}
-.content p{font-size:13px;line-height:1.9;margin:0;max-width:650px;color:#eee}
-.tags{color:#b9f5ff;font-size:12px;margin-top:8px}
-.side-actions{
-  position:absolute;z-index:6;left:15px;bottom:104px;
-  display:flex;flex-direction:column;align-items:center;gap:18px
-}
-.action{
-  border:0;background:transparent;color:#fff;display:flex;flex-direction:column;
-  align-items:center;gap:4px;text-shadow:0 2px 8px #000;padding:0;min-width:45px
-}
-.action .ico{font-size:28px;line-height:1}
-.action .count{font-size:11px;font-weight:bold}
-.action.liked .ico{color:var(--danger);animation:pop .22s ease}
-.action.saved .ico{color:#ffe66d}
-@keyframes pop{50%{transform:scale(1.4)}}
-.play-indicator{
-  position:absolute;z-index:5;inset:0;margin:auto;width:72px;height:72px;border-radius:50%;
-  background:#0008;color:#fff;display:grid;place-items:center;font-size:32px;
-  opacity:0;transition:.2s;pointer-events:none
-}
-.reel.paused .play-indicator{opacity:1}
-.sound{
-  position:absolute;z-index:7;right:16px;top:80px;background:#0008;color:#fff;
-  border:1px solid #fff4;border-radius:20px;padding:8px 12px
-}
-.progress{position:absolute;z-index:8;bottom:66px;left:0;right:0;height:3px;background:#ffffff33}
-.progress i{display:block;height:100%;width:0;background:#fff}
-.bottom-nav{
-  position:fixed;z-index:40;bottom:0;left:0;right:0;height:68px;
-  padding-bottom:env(safe-area-inset-bottom);display:flex;justify-content:space-around;
-  align-items:center;background:#08090ddd;backdrop-filter:blur(18px);border-top:1px solid var(--line)
-}
-body.light .bottom-nav{background:#ffffffe8}
-.nav-btn{
-  color:#aeb4c2;background:none;border:0;display:flex;flex-direction:column;
-  align-items:center;gap:4px;font-size:10px;min-width:60px
-}
-.nav-btn b{font-size:21px;font-weight:400}
-.nav-btn.active{color:#fff}
-body.light .nav-btn.active{color:var(--accent)}
-.nav-add{
-  width:48px;height:36px;border:0;border-radius:11px;color:#fff;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));font-size:25px
-}
-.panel{
-  position:fixed;z-index:100;inset:0;background:#0009;display:flex;align-items:flex-end;
-  justify-content:center
-}
-.sheet{
-  width:min(680px,100%);max-height:88dvh;overflow:auto;background:var(--panel);
-  border-radius:24px 24px 0 0;padding:20px;box-shadow:var(--shadow);animation:up .25s ease
-}
-@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}
-.sheet h3{margin:0}
-.close{background:var(--panel2);border:0;color:var(--text);border-radius:50%;width:34px;height:34px}
-.form{display:grid;gap:11px}
-.form input,.form textarea,.form select{
-  border:1px solid var(--line);background:var(--panel2);color:var(--text);
-  border-radius:12px;padding:12px;outline:none;width:100%
-}
-.form textarea{min-height:90px;resize:vertical}
-.primary{
-  border:0;border-radius:12px;padding:13px;color:#fff;font-weight:bold;
-  background:linear-gradient(135deg,var(--accent),var(--accent2))
-}
-.secondary{
-  border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--text);
-  background:var(--panel2)
-}
-.comment{
-  padding:12px 0;border-bottom:1px solid var(--line);line-height:1.8;font-size:13px
-}
-.comment strong{color:var(--accent2);margin-left:8px}
-.comment-form{display:flex;gap:8px;position:sticky;bottom:0;background:var(--panel);padding-top:12px}
-.comment-form input{flex:1;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;padding:11px}
-.search-box{
-  position:fixed;z-index:80;top:68px;left:15px;right:15px;
-  background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:10px;
-  box-shadow:var(--shadow)
-}
-.search-box input{width:100%;border:0;outline:0;background:transparent;color:var(--text)}
-.categorybar{
-  position:fixed;z-index:25;top:70px;right:15px;left:15px;display:flex;
-  gap:7px;overflow:auto;scrollbar-width:none
-}
-.categorybar::-webkit-scrollbar{display:none}
-.chip{
-  white-space:nowrap;border:1px solid #fff5;background:#0007;color:#fff;
-  border-radius:30px;padding:7px 13px;font-size:11px
-}
-.chip.active{background:var(--accent);border-color:var(--accent)}
-.empty{height:100%;display:grid;place-items:center;text-align:center;padding:30px;color:var(--muted)}
-.toast{
-  position:fixed;z-index:200;bottom:83px;left:50%;transform:translateX(-50%);
-  background:#222d;color:#fff;border:1px solid #fff2;border-radius:12px;padding:11px 16px;
-  opacity:0;pointer-events:none;transition:.25s;font-size:12px
-}
-.toast.show{opacity:1}
-.file-note{font-size:11px;color:var(--muted);line-height:1.7}
-@media(min-width:800px){
-  #feed{max-width:560px;margin:auto}
-  .topbar,.bottom-nav{max-width:560px;margin:auto}
-  .categorybar{max-width:530px;margin:auto}
-}
-</style>
+        /* استایل‌های جست‌وجو */
+        .search-container { padding: 20px; background: #111; }
+        .search-box { width: 100%; padding: 15px; border-radius: 20px; border: none; background: #222; color: #fff; }
+        
+        /* پروفایل عملیاتی */
+        .profile-card { padding: 40px; text-align: center; }
+        .profile-input { background: transparent; border: 1px solid #444; color: #fff; padding: 10px; width: 80%; border-radius: 10px; text-align: center; }
+    </style>
 </head>
-
 <body>
-<div id="app">
-  <header class="topbar">
-    <div class="brand">Widows2030<small>پایگاه حقیقت علمی</small></div>
-    <div class="top-actions">
-      <button class="icon-btn" id="searchBtn" aria-label="جست‌وجو">⌕</button>
-      <button class="icon-btn" id="themeBtn" aria-label="تغییر پوسته">☼</button>
+
+    <!-- صفحه خانه (فید) -->
+    <div id="view-home" class="view active">
+        <div id="feed"></div>
     </div>
-  </header>
 
-  <div id="searchBox" class="search-box hidden">
-    <input id="searchInput" type="search" placeholder="جست‌وجوی عنوان، کپشن یا دسته‌بندی...">
-  </div>
-
-  <div id="categorybar" class="categorybar"></div>
-  <main id="feed"></main>
-
-  <nav class="bottom-nav">
-    <button class="nav-btn active" data-nav="home"><b>⌂</b><span>خانه</span></button>
-    <button class="nav-btn" data-nav="following"><b>◎</b><span>دنبال‌شده‌ها</span></button>
-    <button class="nav-add" id="uploadBtn">+</button>
-    <button class="nav-btn" data-nav="saved"><b>♡</b><span>ذخیره‌شده</span></button>
-    <button class="nav-btn" data-nav="profile"><b>◉</b><span>پروفایل</span></button>
-  </nav>
-</div>
-
-<div id="uploadPanel" class="panel hidden">
-  <section class="sheet">
-    <div class="sheet-head"><h3>انتشار ویدیوی علمی</h3><button class="close" data-close="uploadPanel">×</button></div>
-    <div class="form">
-      <input id="videoFile" type="file" accept="video/*">
-      <input id="videoTitle" placeholder="عنوان ویدیو">
-      <textarea id="videoCaption" placeholder="کپشن و توضیحات"></textarea>
-      <input id="videoTags" placeholder="برچسب‌ها؛ مثال: فضا، زیست‌شناسی">
-      <select id="videoCategory">
-        <option value="علم">علم</option><option value="فناوری">فناوری</option>
-        <option value="فضا">فضا</option><option value="زیست‌شناسی">زیست‌شناسی</option>
-        <option value="فیزیک">فیزیک</option><option value="عمومی">عمومی</option>
-      </select>
-      <div class="file-note">ویدیو در حافظه همین مرورگر ذخیره می‌شود. برای تست، فایل کوتاه انتخاب کنید. این روش ویدیو را به سرور یا GitHub ارسال نمی‌کند.</div>
-      <button class="primary" id="publishBtn">انتشار ویدیو</button>
+    <!-- صفحه جست‌وجو -->
+    <div id="view-search" class="view">
+        <div class="search-container">
+            <input type="text" id="search-input" class="search-box" placeholder="جست‌وجو در پایگاه علمی...">
+            <div id="search-results" style="margin-top:20px"></div>
+            <button id="web-search-btn" style="display:none; width:100%; padding:15px; background:var(--accent); border:none; color:white; border-radius:10px; margin-top:10px;">جست‌وجو در گوگل</button>
+        </div>
     </div>
-  </section>
-</div>
 
-<div id="commentsPanel" class="panel hidden">
-  <section class="sheet">
-    <div class="sheet-head"><h3 id="commentsTitle">نظرات</h3><button class="close" data-close="commentsPanel">×</button></div>
-    <div id="commentsList"></div>
-    <form class="comment-form" id="commentForm">
-      <input id="commentInput" placeholder="نظر خود را بنویسید..." maxlength="300">
-      <button class="primary" type="submit">ارسال</button>
-    </form>
-  </section>
-</div>
+    <!-- صفحه پروفایل -->
+    <div id="view-profile" class="view">
+        <div class="profile-card">
+            <h2>پروفایل کاربری</h2>
+            <input type="text" id="user-name" class="profile-input" placeholder="نام کاربری خود را وارد کنید">
+            <button onclick="saveProfile()" style="margin-top:10px; padding:10px 20px;">ذخیره تغییرات</button>
+        </div>
+    </div>
 
-<div id="toast" class="toast"></div>
+    <!-- نویگیشن بار -->
+    <nav style="position:fixed; bottom:0; width:100%; height:60px; background:#000; display:flex; justify-content:space-around; align-items:center; border-top:1px solid #333;">
+        <button onclick="switchView('home')">🏠</button>
+        <button onclick="switchView('search')">⌕</button>
+        <button onclick="switchView('profile')">👤</button>
+    </nav>
 
 <script>
-"use strict";
+    // سیستم مدیریت وضعیت (State)
+    const state = {
+        user: localStorage.getItem('widows_user') || 'کاربر مهمان',
+        videos: [
+            { title: "سیاهچاله‌ها چیستند؟", tags: ["فضا", "نجوم"] },
+            { title: "هوش مصنوعی و آینده", tags: ["فناوری", "علم"] }
+        ]
+    };
 
-/* ---------------- تنظیمات و داده‌ها ---------------- */
-const KEY = "widows2030_state_v3";
-const DB_NAME = "widows2030_media";
-const STORE_NAME = "videos";
-const sampleVideos = [
-  {
-    id:"sample-1", title:"چرا آسمان آبی است؟",
-    caption:"پراکندگی نور در جو زمین، یکی از زیباترین پدیده‌های فیزیکی روزمره است.",
-    category:"فیزیک", tags:["نور","فیزیک","آموزش"],
-    src:"https://www.w3schools.com/html/mov_bbb.mp4", likes:128, liked:false, saved:false,
-    following:false, comments:[{name:"کاربر علمی",text:"توضیح ساده و جذابی بود."}]
-  },
-  {
-    id:"sample-2", title:"یک سفر کوتاه در دنیای سلول",
-    caption:"سلول‌ها کارخانه‌های کوچک و شگفت‌انگیز بدن موجودات زنده هستند.",
-    category:"زیست‌شناسی", tags:["سلول","زیست‌شناسی"],
-    src:"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
-    likes:94, liked:false, saved:false, following:false,
-    comments:[]
-  },
-  {
-    id:"sample-3", title:"زمین از نگاه فضا",
-    caption:"شناخت زمین از مدار، نگاه ما را به خانه مشترکمان تغییر می‌دهد.",
-    category:"فضا", tags:["زمین","فضا","کیهان"],
-    src:"https://www.w3schools.com/html/movie.mp4", likes:76, liked:false, saved:false,
-    following:false, comments:[]
-  }
-];
-
-let state = loadState();
-let activeFilter = "همه";
-let activeNav = "home";
-let currentCommentId = null;
-let observer;
-const mediaCache = new Map();
-
-/* ---------------- ابزارهای عمومی ---------------- */
-function $(id){ return document.getElementById(id); }
-function esc(value){
-  return String(value ?? "").replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[c]));
-}
-function formatNumber(n){
-  n = Number(n)||0;
-  if(n >= 1000000) return (n/1000000).toFixed(1)+"M";
-  if(n >= 1000) return (n/1000).toFixed(1)+"K";
-  return String(n);
-}
-function showToast(text){
-  const t=$("toast"); t.textContent=text; t.classList.add("show");
-  clearTimeout(showToast.timer); showToast.timer=setTimeout(()=>t.classList.remove("show"),2400);
-}
-function loadState(){
-  try{
-    const saved=JSON.parse(localStorage.getItem(KEY));
-    return saved && Array.isArray(saved.videos) ? saved : {videos:sampleVideos,theme:"dark"};
-  }catch(e){ return {videos:sampleVideos,theme:"dark"}; }
-}
-function saveState(){
-  try{
-    localStorage.setItem(KEY, JSON.stringify({
-      videos:state.videos.map(v=>({...v,src:v.isLocal ? undefined : v.src})),
-      theme:state.theme
-    }));
-  }catch(e){ showToast("ذخیره اطلاعات ممکن نشد."); }
-}
-
-/* ---------------- IndexedDB برای ویدیوهای محلی ---------------- */
-function openDB(){
-  return new Promise((resolve,reject)=>{
-    const request=indexedDB.open(DB_NAME,1);
-    request.onupgradeneeded=()=>request.result.createObjectStore(STORE_NAME);
-    request.onsuccess=()=>resolve(request.result);
-    request.onerror=()=>reject(request.error);
-  });
-}
-async function putMedia(id,blob){
-  const db=await openDB();
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(STORE_NAME,"readwrite");
-    tx.objectStore(STORE_NAME).put(blob,id);
-    tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
-  });
-}
-async function getMedia(id){
-  if(mediaCache.has(id)) return mediaCache.get(id);
-  try{
-    const db=await openDB();
-    const blob=await new Promise((resolve,reject)=>{
-      const tx=db.transaction(STORE_NAME,"readonly"), req=tx.objectStore(STORE_NAME).get(id);
-      req.onsuccess=()=>resolve(req.result); req.onerror=()=>reject(req.error);
-    });
-    if(blob){ const url=URL.createObjectURL(blob); mediaCache.set(id,url); return url; }
-  }catch(e){}
-  return "";
-}
-async function deleteMedia(id){
-  try{
-    const db=await openDB();
-    const tx=db.transaction(STORE_NAME,"readwrite");
-    tx.objectStore(STORE_NAME).delete(id);
-    if(mediaCache.has(id)){URL.revokeObjectURL(mediaCache.get(id));mediaCache.delete(id);}
-  }catch(e){}
-}
-
-/* ---------------- فیلتر و رندر ---------------- */
-function getCategories(){
-  const cats=new Set(["همه"]);
-  state.videos.forEach(v=>cats.add(v.category||"عمومی"));
-  return [...cats];
-}
-function renderCategories(){
-  $("categorybar").innerHTML=getCategories().map(c=>
-    `<button class="chip ${c===activeFilter?"active":""}" data-category="${esc(c)}">${esc(c)}</button>`
-  ).join("");
-}
-function filteredVideos(){
-  const q=$("searchInput").value.trim().toLowerCase();
-  return state.videos.filter(v=>{
-    const categoryOK=activeFilter==="همه" || v.category===activeFilter;
-    const navOK=activeNav==="saved" ? v.saved : activeNav==="following" ? v.following : true;
-    const text=[v.title,v.caption,v.category,(v.tags||[]).join(" ")].join(" ").toLowerCase();
-    return categoryOK && navOK && (!q || text.includes(q));
-  });
-}
-function render(){
-  renderCategories();
-  const list=filteredVideos();
-  const feed=$("feed");
-  if(!list.length){
-    feed.innerHTML=`<div class="empty"><div><div style="font-size:45px">⌕</div><h3>محتوایی پیدا نشد</h3><p>فیلتر یا عبارت جست‌وجو را تغییر دهید.</p></div></div>`;
-    return;
-  }
-  feed.innerHTML=list.map((v,i)=>reelHTML(v,i)).join("");
-  hydrateLocalVideos();
-  setupObserver();
-}
-function reelHTML(v,index){
-  const tags=(v.tags||[]).map(t=>"#"+esc(t)).join(" ");
-  return `
-  <article class="reel ${v.paused?"paused":""}" data-id="${esc(v.id)}">
-    <video class="video" data-id="${esc(v.id)}" ${v.isLocal?"":"src=\""+esc(v.src)+"\""} loop muted playsinline preload="${index<2?"auto":"metadata"}"></video>
-    <button class="sound" data-action="sound">🔇 صدا</button>
-    <div class="play-indicator">▶</div>
-    <div class="content">
-      <div class="user-line"><div class="avatar">W</div><b>@widows2030</b>
-        <button class="follow" data-action="follow">${v.following?"دنبال می‌کنید":"دنبال کردن"}</button>
-      </div>
-      <h2>${esc(v.title)}</h2><p>${esc(v.caption)}</p><div class="tags">${tags}</div>
-    </div>
-    <div class="side-actions">
-      <button class="action ${v.liked?"liked":""}" data-action="like"><span class="ico">♥</span><span class="count">${formatNumber(v.likes)}</span></button>
-      <button class="action" data-action="comment"><span class="ico">◌</span><span class="count">${(v.comments||[]).length}</span></button>
-      <button class="action ${v.saved?"saved":""}" data-action="save"><span class="ico">${v.saved?"★":"☆"}</span><span class="count">ذخیره</span></button>
-      <button class="action" data-action="share"><span class="ico">↗</span><span class="count">ارسال</span></button>
-      ${v.isLocal?`<button class="action" data-action="delete"><span class="ico">⌫</span><span class="count">حذف</span></button>`:""}
-    </div>
-    <div class="progress"><i></i></div>
-  </article>`;
-}
-async function hydrateLocalVideos(){
-  for(const v of filteredVideos()){
-    if(!v.isLocal) continue;
-    const el=document.querySelector(`video[data-id="${CSS.escape(v.id)}"]`);
-    if(el){const url=await getMedia(v.id);if(url)el.src=url;}
-  }
-}
-function setupObserver(){
-  if(observer) observer.disconnect();
-  observer=new IntersectionObserver(entries=>{
-    entries.forEach(entry=>{
-      const video=entry.target.querySelector("video");
-      if(!video)return;
-      if(entry.isIntersecting && entry.intersectionRatio>.65){
-        document.querySelectorAll(".reel video").forEach(x=>{if(x!==video)x.pause()});
-        video.play().catch(()=>{});
-      }else video.pause();
-    });
-  },{threshold:[.2,.65,.9]});
-  document.querySelectorAll(".reel").forEach(r=>observer.observe(r));
-}
-
-/* ---------------- تعامل با ویدیو و دکمه‌ها ---------------- */
-$("feed").addEventListener("click",async e=>{
-  const reel=e.target.closest(".reel"); if(!reel)return;
-  const id=reel.dataset.id, v=state.videos.find(x=>x.id===id);
-  const action=e.target.closest("[data-action]")?.dataset.action;
-  if(action){
-    e.stopPropagation();
-    if(action==="like"){v.liked=!v.liked;v.likes=Math.max(0,v.likes+(v.liked?1:-1));saveState();render();}
-    if(action==="save"){v.saved=!v.saved;saveState();render();showToast(v.saved?"به ذخیره‌شده‌ها اضافه شد":"از ذخیره‌شده‌ها حذف شد");}
-    if(action==="follow"){v.following=!v.following;saveState();render();showToast(v.following?"دنبال شد":"لغو دنبال‌کردن");}
-    if(action==="comment")openComments(v);
-    if(action==="share")shareVideo(v);
-    if(action==="delete")deleteVideo(v);
-    if(action==="sound"){
-      const video=reel.querySelector("video"); video.muted=!video.muted;
-      e.target.textContent=video.muted?"🔇 صدا":"🔊 صدا";
+    // تعویض ویو (Navigation Logic)
+    function switchView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-' + viewId).classList.add('active');
     }
-    return;
-  }
-  const video=reel.querySelector("video");
-  if(video.paused){video.play();reel.classList.remove("paused");}
-  else{video.pause();reel.classList.add("paused");}
-});
-$("feed").addEventListener("timeupdate",e=>{
-  if(e.target.tagName==="VIDEO"){
-    const p=e.target.duration ? e.target.currentTime/e.target.duration*100 : 0;
-    const bar=e.target.closest(".reel")?.querySelector(".progress i"); if(bar)bar.style.width=p+"%";
-  }
-},true);
 
-async function shareVideo(v){
-  const text=`${v.title}\n${v.caption}`;
-  if(navigator.share){try{await navigator.share({title:v.title,text,url:location.href});}catch(e){}}
-  else{await navigator.clipboard?.writeText(text+" "+location.href);showToast("پیوند ویدیو کپی شد");}
-}
-function deleteVideo(v){
-  if(!confirm("این ویدیوی آپلودی حذف شود؟"))return;
-  state.videos=state.videos.filter(x=>x.id!==v.id);saveState();deleteMedia(v.id);render();showToast("ویدیو حذف شد");
-}
+    // موتور جست‌وجوی دوگانه (هوشمند)
+    document.getElementById('search-input').addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const resultsDiv = document.getElementById('search-results');
+        const webBtn = document.getElementById('web-search-btn');
+        
+        const filtered = state.videos.filter(v => v.title.toLowerCase().includes(query));
+        
+        if (filtered.length > 0) {
+            resultsDiv.innerHTML = filtered.map(v => `<p style="padding:10px; border-bottom:1px solid #333">${v.title}</p>`).join('');
+            webBtn.style.display = 'none';
+        } else {
+            resultsDiv.innerHTML = '<p>موردی یافت نشد.</p>';
+            webBtn.style.display = 'block';
+            webBtn.onclick = () => window.open(`https://www.google.com/search?q=${query}`, '_blank');
+        }
+    });
 
-/* ---------------- کامنت‌ها ---------------- */
-function openComments(v){
-  currentCommentId=v.id;
-  $("commentsTitle").textContent=`نظرات ${v.comments.length}`;
-  $("commentsList").innerHTML=v.comments.length ? v.comments.map(c=>
-    `<div class="comment"><strong>${esc(c.name||"کاربر")}</strong>${esc(c.text)}</div>`
-  ).join("") : `<p class="file-note">هنوز نظری ثبت نشده است.</p>`;
-  $("commentsPanel").classList.remove("hidden");
-}
-$("commentForm").addEventListener("submit",e=>{
-  e.preventDefault();const input=$("commentInput"),text=input.value.trim();if(!text)return;
-  const v=state.videos.find(x=>x.id===currentCommentId);
-  v.comments.push({name:"کاربر",text});input.value="";saveState();openComments(v);render();
-});
+    // عملیات ذخیره‌سازی پروفایل
+    function saveProfile() {
+        const name = document.getElementById('user-name').value;
+        localStorage.setItem('widows_user', name);
+        alert('تغییرات ذخیره شد!');
+    }
 
-/* ---------------- آپلود ---------------- */
-$("uploadBtn").onclick=()=>$("uploadPanel").classList.remove("hidden");
-$("publishBtn").onclick=async()=>{
-  const file=$("videoFile").files[0];
-  if(!file)return showToast("لطفاً یک ویدیو انتخاب کنید.");
-  if(!file.type.startsWith("video/"))return showToast("فایل انتخاب‌شده ویدیو نیست.");
-  if(file.size>150*1024*1024)return showToast("حجم فایل برای ذخیره محلی زیاد است.");
-  const id="local-"+Date.now();
-  const v={
-    id,isLocal:true,title:$("videoTitle").value.trim()||"ویدیوی جدید",
-    caption:$("videoCaption").value.trim()||"محتوای علمی در Widows2030",
-    tags:$("videoTags").value.split(/[،,]/).map(x=>x.trim()).filter(Boolean),
-    category:$("videoCategory").value,src:"",likes:0,liked:false,saved:false,
-    following:false,comments:[]
-  };
-  try{
-    await putMedia(id,file);state.videos.unshift(v);saveState();
-    $("uploadPanel").classList.add("hidden");
-    $("videoFile").value="";$("videoTitle").value="";$("videoCaption").value="";$("videoTags").value="";
-    activeNav="home";render();showToast("ویدیو با موفقیت منتشر شد.");
-  }catch(e){showToast("ذخیره ویدیو انجام نشد.");}
-};
-
-/* ---------------- ناوبری و پوسته ---------------- */
-document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.close).classList.add("hidden"));
-document.querySelectorAll(".panel").forEach(p=>p.addEventListener("click",e=>{if(e.target===p)p.classList.add("hidden")}));
-$("searchBtn").onclick=()=>{
-  $("searchBox").classList.toggle("hidden");
-  if(!$("searchBox").classList.contains("hidden"))$("searchInput").focus();
-};
-$("searchInput").oninput=()=>render();
-$("themeBtn").onclick=()=>{
-  state.theme=state.theme==="light"?"dark":"light";
-  document.body.classList.toggle("light",state.theme==="light");saveState();
-};
-document.querySelector(".bottom-nav").addEventListener("click",e=>{
-  const btn=e.target.closest("[data-nav]");if(!btn)return;
-  activeNav=btn.dataset.nav;
-  document.querySelectorAll(".nav-btn").forEach(x=>x.classList.toggle("active",x===btn));
-  render();
-  if(activeNav==="profile")showToast("پروفایل محلی شما آماده است.");
-});
-$("categorybar").addEventListener("click",e=>{
-  const b=e.target.closest("[data-category]");if(!b)return;
-  activeFilter=b.dataset.category;render();
-});
-
-/* ---------------- شروع ---------------- */
-document.body.classList.toggle("light",state.theme==="light");
-render();
+    // مقداردهی اولیه
+    document.getElementById('user-name').value = state.user;
 </script>
 </body>
 </html>
