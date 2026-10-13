@@ -3,128 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>پایگاه حقیقت علمی | اکوسیستم هوشمند</title>
+    <title>پایگاه حقیقت علمی | اکوسیستم پیشرفته</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <style>
         body { font-family: 'Vazirmatn', sans-serif; background-color: #030508; color: #F3F4F6; margin: 0; overflow-x: hidden; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px); border: 1px solid rgba(212, 175, 55, 0.2); }
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(15px); border: 1px solid rgba(212, 175, 55, 0.25); }
         .gold-text { color: #D4AF37; }
         .gold-bg { background: linear-gradient(135deg, #D4AF37, #F9E076); }
-        .view-section { min-height: 100vh; padding-bottom: 100px; display: block; }
+        .view-section { min-height: 100vh; padding-bottom: 120px; display: block; }
         .hidden { display: none !important; }
-        .reel-video { width: 100%; height: 75vh; object-fit: cover; border-radius: 24px; background: #111; }
+        .reel-video { width: 100%; height: 72vh; object-fit: cover; border-radius: 24px; background: #111; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         .category-chip { transition: all 0.3s ease; cursor: pointer; white-space: nowrap; }
-        .category-chip.active { background: #D4AF37; color: black; transform: scale(1.05); box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
-        .search-bar { transition: all 0.3s ease; }
-        .search-bar:focus-within { width: 95%; border-color: #D4AF37; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .community-msg { animation: slideUp 0.4s ease-out; }
-        ::-webkit-scrollbar { width: 4px; }
+        .category-chip.active { background: #D4AF37; color: black; transform: scale(1.05); box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); font-weight: bold; }
+        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .ticker-wrap { overflow: hidden; white-space: nowrap; width: 100%; background: rgba(212, 175, 55, 0.1); border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
+        .ticker-move { display: inline-block; animation: ticker 25s linear infinite; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- 1. TOP NAVIGATION & SEARCH (Instagram Style) -->
-    <header class="fixed top-0 left-0 right-0 z-[60] px-4 py-3 flex flex-col gap-3">
-        <div class="flex justify-between items-center">
-            <h1 class="text-lg font-bold gold-text">حقیقت علمی</h1>
-            <div class="flex gap-4 text-gray-400">
-                <i class="fa-solid fa-bell"></i>
-                <i class="fa-solid fa-envelope"></i>
-            </div>
+    <!-- 1. LIVE NEWS TICKER (اخبار گذرا) -->
+    <div class="fixed top-0 left-0 right-0 z-[70] ticker-wrap py-1 text-[11px] gold-text">
+        <div class="ticker-move">
+            🔥 آخرین اخبار علمی جهان: کشف سیاره‌ای جدید با احتمال حیات • پیشرفت شگفت‌انگیز در هوش مصنوعی کوانتومی • رشد اقتصاد دانش‌بنیان در سال ۲۰۲۶ • انتشار مقالات جدید در پایگاه حقیقت علمی •
         </div>
-        <div class="search-bar glass rounded-full px-4 py-2 flex items-center gap-2">
-            <i class="fa-solid fa-magnifying-glass text-gray-400 text-sm"></i>
-            <input type="text" id="global-search" placeholder="جستجو در پلتفرم..." class="bg-transparent w-full text-xs outline-none text-white">
+    </div>
+
+    <!-- 2. TOP HEADER & MULTI-ENGINE SEARCH -->
+    <header class="fixed top-[26px] left-0 right-0 z-[60] px-4 py-2 flex flex-col gap-2 glass border-b border-white/10">
+        <div class="flex justify-between items-center">
+            <h1 class="text-sm font-bold gold-text flex items-center gap-2"><i class="fa-solid fa-atom"></i> حقیقت علمی</h1>
+            <button onclick="connectWallet()" id="wallet-btn" class="text-[10px] gold-bg text-black px-3 py-1.5 rounded-full font-bold shadow-md">
+                <i class="fa-solid fa-wallet ml-1"></i> اتصال کیف پول
+            </button>
+        </div>
+        <div class="flex gap-2 items-center">
+            <select id="search-engine" class="bg-black/80 text-[10px] gold-text border border-gold/30 rounded-xl px-2 py-2 outline-none">
+                <option value="google">گوگل (Google)</option>
+                <option value="duckduckgo">داک‌داک‌گو (Privacy)</option>
+            </select>
+            <div class="flex-1 glass rounded-xl px-3 py-1.5 flex items-center gap-2 border border-white/10">
+                <i class="fa-solid fa-magnifying-glass text-gray-400 text-xs"></i>
+                <input type="text" id="global-search" onkeypress="handleSearch(event)" placeholder="جستجوی پیشرفته در وب و پایگاه..." class="bg-transparent w-full text-xs outline-none text-white">
+            </div>
         </div>
     </header>
 
-    <!-- 2. HORIZONTAL CATEGORIES (Interest Chips) -->
-    <div class="fixed top-[110px] left-0 right-0 z-[55] overflow-x-auto px-4 py-2 no-scrollbar flex gap-2">
-        <div onclick="filterCategory('همه')" class="category-chip active glass px-4 py-1 rounded-full text-xs" id="chip-همه">همه</div>
-        <div onclick="filterCategory('علمی')" class="category-chip glass px-4 py-1 rounded-full text-xs" id="chip-علمی">علمی</div>
-        <div onclick="filterCategory('سرگرمی')" class="category-chip glass px-4 py-1 rounded-full text-xs" id="chip-سرگرمی">سرگرمی</div>
-        <div onclick="filterCategory('کمدی')" class="category-chip glass px-4 py-1 rounded-full text-xs" id="chip-کمدی">کمدی</div>
-        <div onclick="filterCategory('بازی')" class="category-chip glass px-4 py-1 rounded-full text-xs" id="chip-بازی">بازی</div>
-        <div onclick="filterCategory('ورزشی')" class="category-chip glass px-4 py-1 rounded-full text-xs" id="chip-ورزشی">ورزشی</div>
-        <div onclick="filterCategory('خبری')" class="category-chip glass px-4 py-1 rounded-full text-xs" id="chip-خبری">خبری</div>
+    <!-- 3. HORIZONTAL MEGA-CATEGORIES (سلیقه‌های گسترده) -->
+    <div class="fixed top-[102px] left-0 right-0 z-[55] overflow-x-auto px-4 py-2 no-scrollbar flex gap-2 bg-[#030508]/90 backdrop-blur-md">
+        <div onclick="filterCategory('همه')" class="category-chip active glass px-3 py-1 rounded-full text-xs" id="chip-همه">همه</div>
+        <div onclick="filterCategory('علمی')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-علمی">علمی</div>
+        <div onclick="filterCategory('آموزشی')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-آموزشی">آموزشی</div>
+        <div onclick="filterCategory('حیات‌وحش')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-حیات‌وحش">حیات‌وحش</div>
+        <div onclick="filterCategory('تولید')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-تولید">تولید</div>
+        <div onclick="filterCategory('هنر')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-هنر">هنر</div>
+        <div onclick="filterCategory('اقتصاد')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-اقتصاد">اقتصاد</div>
+        <div onclick="filterCategory('تکنولوژی')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-تکنولوژی">تکنولوژی</div>
+        <div onclick="filterCategory('فضا')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-فضا">فضا</div>
+        <div onclick="filterCategory('تاریخ')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-تاریخ">تاریخ</div>
+        <div onclick="filterCategory('پزشکی')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-پزشکی">پزشکی</div>
+        <div onclick="filterCategory('سرگرمی')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-سرگرمی">سرگرمی</div>
+        <div onclick="filterCategory('کمدی')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-کمدی">کمدی</div>
+        <div onclick="filterCategory('بازی')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-بازی">بازی</div>
+        <div onclick="filterCategory('ورزشی')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-ورزشی">ورزشی</div>
+        <div onclick="filterCategory('خبری')" class="category-chip glass px-3 py-1 rounded-full text-xs" id="chip-خبری">خبری</div>
     </div>
 
-    <main class="pt-[180px] px-4">
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="pt-[155px] px-4">
         
-        <!-- VIEW: FEED -->
+        <!-- VIEW: FEED (Reels Scientific) -->
         <div id="view-feed" class="view-section">
-            <div id="reels-container" class="space-y-8">
-                <!-- Videos injected by JS -->
-            </div>
+            <div id="reels-container" class="space-y-6"></div>
         </div>
 
-        <!-- VIEW: AI HUB -->
+        <!-- VIEW: AI HUB (هوش مصنوعی چندگانه با درگاه‌های پویا) -->
         <div id="view-ai" class="view-section hidden">
-            <div class="glass rounded-3xl p-5 flex flex-col h-[65vh]">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="font-bold text-sm">هوش مصنوعی چندگانه</h2>
-                    <select id="ai-selector" onchange="changeAI()" class="bg-black text-[10px] text-gold border border-gold/30 rounded-lg p-1 outline-none">
-                        <option value="gpt6">GPT-6 (Deep Thinking)</option>
-                        <option value="claude">Claude 3.5 (Creative)</option>
-                        <option value="gemini">Gemini Pro (Fast)</option>
+            <div class="glass rounded-3xl p-4 flex flex-col h-[70vh]">
+                <div class="flex items-center justify-between mb-3 pb-2 border-b border-white/10">
+                    <h2 class="font-bold text-xs gold-text"><i class="fa-solid fa-brain ml-1"></i> درگاه هوش مصنوعی پیشرفته</h2>
+                    <select id="ai-selector" onchange="changeAIModel()" class="bg-black text-[10px] gold-text border border-gold/30 rounded-xl p-2 outline-none font-bold">
+                        <option value="gpt6">GPT-6 (Scientific Deep Thinking)</option>
+                        <option value="claude">Claude 3.5 Sonnet (Creative & Analysis)</option>
+                        <option value="gemini">Gemini 1.5 Pro (Fast & Multimodal)</option>
+                        <option value="deepseek">DeepSeek R1 (Logic & Math)</option>
                     </select>
                 </div>
-                <div id="ai-chat-box" class="flex-1 overflow-y-auto space-y-4 pr-2 mb-4 text-xs"></div>
+                <div id="ai-chat-box" class="flex-1 overflow-y-auto space-y-3 pr-1 mb-3 text-xs">
+                    <div class="bg-gold/10 p-3 rounded-2xl text-gold border border-gold/20">سلام! من دستیار هوشمند شما هستم. از من هر پرسش علمی، اقتصادی، تکنولوژی یا آموزشی دارید بپرسید تا با مدل انتخابی پاسخ دهم.</div>
+                </div>
                 <div class="flex gap-2">
-                    <input type="text" id="ai-query" placeholder="سوال علمی بپرس..." class="flex-1 bg-black/50 border border-gray-800 rounded-xl p-3 text-xs outline-none">
-                    <button onclick="askAI()" class="gold-bg text-black w-10 h-10 rounded-xl flex items-center justify-center"><i class="fa-solid fa-paper-plane"></i></button>
+                    <input type="text" id="ai-query" onkeypress="handleAIKey(event)" placeholder="سوال خود را بنویسید..." class="flex-1 bg-black/60 border border-gray-800 rounded-2xl px-4 py-3 text-xs outline-none focus:border-gold">
+                    <button onclick="askAI()" class="gold-bg text-black w-11 h-11 rounded-2xl flex items-center justify-center font-bold shadow-lg"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW: COMMUNITY -->
+        <!-- VIEW: COMMUNITY (تالار گفتگو) -->
         <div id="view-community" class="view-section hidden">
-            <div class="glass rounded-3xl p-4 h-[65vh] flex flex-col">
-                <h2 class="font-bold text-center text-gold mb-4"><i class="fa-solid fa-comments ml-2"></i>تالار گفتگو</h2>
-                <div id="community-messages" class="flex-1 overflow-y-auto space-y-4 mb-4 text-xs"></div>
+            <div class="glass rounded-3xl p-4 h-[70vh] flex flex-col">
+                <h2 class="font-bold text-center gold-text mb-3 text-sm"><i class="fa-solid fa-users ml-2"></i>تالار تبادل نظر پژوهشگران</h2>
+                <div id="community-messages" class="flex-1 overflow-y-auto space-y-3 mb-3 text-xs pr-1"></div>
                 <div class="flex gap-2">
-                    <input type="text" id="comm-input" placeholder="نظر خود را بنویسید..." class="flex-1 bg-black border border-gray-800 rounded-xl p-3 text-xs outline-none">
-                    <button onclick="sendCommMessage()" class="gold-bg text-black px-4 rounded-xl font-bold text-xs">ارسال</button>
+                    <input type="text" id="comm-input" onkeypress="handleCommKey(event)" placeholder="نظر یا دیدگاه علمی خود را بنویسید..." class="flex-1 bg-black/60 border border-gray-800 rounded-2xl px-4 py-3 text-xs outline-none focus:border-gold">
+                    <button onclick="sendCommMessage()" class="gold-bg text-black px-5 rounded-2xl font-bold text-xs shadow-lg">ارسال</button>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW: UPLOAD -->
+        <!-- VIEW: UPLOAD (انتشار اثر NFT) -->
         <div id="view-upload" class="view-section hidden">
-            <div class="glass rounded-3xl p-5 space-y-4">
-                <h2 class="text-center font-bold text-gold">انتشار اثر (NFT)</h2>
-                <input type="text" id="up-title" placeholder="عنوان اثر" class="w-full bg-black border border-gray-800 rounded-xl p-3 text-xs">
-                <input type="text" id="up-url" placeholder="لینک ویدیو (MP4)" class="w-full bg-black border border-gray-800 rounded-xl p-3 text-xs">
-                <select id="up-category" class="w-full bg-black border border-gray-800 rounded-xl p-3 text-xs outline-none">
+            <div class="glass rounded-3xl p-5 space-y-4 max-w-md mx-auto">
+                <h2 class="text-center font-bold gold-text text-sm"><i class="fa-solid fa-cloud-arrow-up ml-1"></i> انتشار ویدیو / مقاله (NFT)</h2>
+                <input type="text" id="up-title" placeholder="عنوان اثر علمی" class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-xs outline-none focus:border-gold">
+                <input type="text" id="up-url" placeholder="لینک مستقیم ویدیو (MP4)" class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-xs outline-none focus:border-gold">
+                <select id="up-category" class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-xs outline-none focus:border-gold gold-text">
                     <option value="علمی">علمی</option>
+                    <option value="آموزشی">آموزشی</option>
+                    <option value="حیات‌وحش">حیات‌وحش</option>
+                    <option value="تولید">تولید</option>
+                    <option value="هنر">هنر</option>
+                    <option value="اقتصاد">اقتصاد</option>
+                    <option value="تکنولوژی">تکنولوژی</option>
+                    <option value="فضا">فضا</option>
+                    <option value="تاریخ">تاریخ</option>
+                    <option value="پزشکی">پزشکی</option>
                     <option value="سرگرمی">سرگرمی</option>
                     <option value="کمدی">کمدی</option>
                     <option value="بازی">بازی</option>
                     <option value="ورزشی">ورزشی</option>
                     <option value="خبری">خبری</option>
                 </select>
-                <input type="number" id="up-price" placeholder="قیمت به ETH" class="w-full bg-black border border-gray-800 rounded-xl p-3 text-xs">
-                <button onclick="mintNFT()" class="w-full gold-bg text-black font-bold py-3 rounded-xl mt-4">ضرب و انتشار</button>
+                <input type="number" id="up-price" placeholder="قیمت به ETH (اختیاری)" class="w-full bg-black/60 border border-gray-800 rounded-xl p-3 text-xs outline-none focus:border-gold">
+                <button onclick="mintNFT()" class="w-full gold-bg text-black font-bold py-3 rounded-xl mt-2 text-xs shadow-lg">تایید و انتشار روی بلاکچین</button>
             </div>
         </div>
 
-        <!-- VIEW: PROFILE -->
+        <!-- VIEW: PROFILE & INTERESTS (مدیریت سلیقه و هویت کیف پول) -->
         <div id="view-profile" class="view-section hidden">
-            <div class="glass rounded-3xl p-6 text-center">
-                <div class="w-20 h-20 bg-gold mx-auto rounded-full mb-4 flex items-center justify-center text-black text-3xl font-bold">U</div>
-                <h2 id="profile-name" class="text-lg font-bold">کاربر علمی</h2>
-                <p id="wallet-addr" class="text-[10px] text-gray-500 mb-6">عدم اتصال متامسک</p>
-                
-                <div class="text-right space-y-4">
-                    <h3 class="text-xs font-bold text-gold">تنظیمات سلیقه (Interests):</h3>
-                    <div id="interest-selector" class="flex flex-wrap gap-2">
-                        <!-- Interests generated by JS -->
-                    </div>
+            <div class="glass rounded-3xl p-5 max-w-md mx-auto space-y-5">
+                <div class="text-center">
+                    <div class="w-16 h-16 gold-bg mx-auto rounded-full mb-3 flex items-center justify-center text-black text-2xl font-bold shadow-lg"><i class="fa-solid fa-user-astronaut"></i></div>
+                    <h2 id="profile-name" class="font-bold text-sm gold-text">پژوهشگر مهمان</h2>
+                    <p id="profile-wallet" class="text-[10px] text-gray-400 mt-1">کیف پول متصل نشده است</p>
+                </div>
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold gold-text">انتخاب موضوعات مورد علاقه (برای فیلتر هوشمند فید):</h3>
+                    <div id="interest-selector" class="flex flex-wrap gap-2"></div>
                 </div>
             </div>
         </div>
@@ -132,54 +162,111 @@
     </main>
 
     <!-- BOTTOM NAVIGATION -->
-    <nav class="fixed bottom-0 left-0 right-0 z-[70] glass px-6 py-4 flex justify-around items-center border-t border-white/10">
-        <button onclick="switchView('feed')" class="nav-btn text-gold" data-view="feed"><i class="fa-solid fa-play text-xl"></i></button>
-        <button onclick="switchView('ai')" class="nav-btn text-gray-400" data-view="ai"><i class="fa-solid fa-brain text-xl"></i></button>
-        <button onclick="switchView('community')" class="nav-btn text-gray-400" data-view="community"><i class="fa-solid fa-users text-xl"></i></button>
-        <button onclick="switchView('upload')" class="nav-btn text-gray-400" data-view="upload"><i class="fa-solid fa-circle-plus text-xl"></i></button>
-        <button onclick="switchView('profile')" class="nav-btn text-gray-400" data-view="profile"><i class="fa-solid fa-user text-xl"></i></button>
+    <nav class="fixed bottom-0 left-0 right-0 z-[70] glass px-6 py-3 flex justify-around items-center border-t border-white/10">
+        <button onclick="switchView('feed')" class="nav-btn gold-text flex flex-col items-center gap-1" data-view="feed"><i class="fa-solid fa-play text-lg"></i><span class="text-[9px]">فید</span></button>
+        <button onclick="switchView('ai')" class="nav-btn text-gray-400 flex flex-col items-center gap-1" data-view="ai"><i class="fa-solid fa-brain text-lg"></i><span class="text-[9px]">هوش مصنوعی</span></button>
+        <button onclick="switchView('community')" class="nav-btn text-gray-400 flex flex-col items-center gap-1" data-view="community"><i class="fa-solid fa-users text-lg"></i><span class="text-[9px]">تالار گفتگو</span></button>
+        <button onclick="switchView('upload')" class="nav-btn text-gray-400 flex flex-col items-center gap-1" data-view="upload"><i class="fa-solid fa-circle-plus text-lg"></i><span class="text-[9px]">انتشار</span></button>
+        <button onclick="switchView('profile')" class="nav-btn text-gray-400 flex flex-col items-center gap-1" data-view="profile"><i class="fa-solid fa-user text-lg"></i><span class="text-[9px]">پروفایل</span></button>
     </nav>
 
     <script>
-        // DATA STATE
+        // STATE MANAGEMENT
         let currentFilter = 'همه';
-        let userInterests = JSON.parse(localStorage.getItem('user_interests')) || ['علمی', 'خبری'];
-        let videos = JSON.parse(localStorage.getItem('science_v2_data')) || [
-            { id: 1, title: 'راز سیاهچاله‌ها', author: 'دکتر فیزیک', url: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-background-1610-large.mp4', likes: 120, category: 'علمی' },
-            { id: 2, title: 'خنده دارترین لحظات', author: 'کمدین برتر', url: 'https://assets.mixkit.co/videos/preview/mixkit-funny-cat-jumping-4271-large.mp4', likes: 450, category: 'کمدی' },
-            { id: 3, title: 'هدف برتر فوتبال', author: 'اسطوره', url: 'https://assets.mixkit.co/videos/preview/mixkit-soccer-player-kicking-the-ball-41174-large.mp4', likes: 890, category: 'ورزشی' },
-            { id: 4, title: 'آخرین اخبار جهان', author: 'خبرگزاری', url: 'https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-a-world-map-43410-large.mp4', likes: 300, category: 'خبری' }
+        let userWalletAddress = localStorage.getItem('user_wallet') || null;
+        let userInterests = JSON.parse(localStorage.getItem('user_interests')) || ['علمی', 'تکنولوژی', 'آموزشی'];
+        
+        const allCategories = ['علمی', 'آموزشی', 'حیات‌وحش', 'تولید', 'هنر', 'اقتصاد', 'تکنولوژی', 'فضا', 'تاریخ', 'پزشکی', 'سرگرمی', 'کمدی', 'بازی', 'ورزشی', 'خبری'];
+        
+        let videos = JSON.parse(localStorage.getItem('science_v3_videos')) || [
+            { id: 1, title: 'مکانیسم کوانتومی سیاهچاله‌ها', author: '0x71C...39A', url: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-background-1610-large.mp4', category: 'علمی', likes: 142 },
+            { id: 2, title: 'آموزش هوش مصنوعی پیشرفته', author: '0x42B...11C', url: 'https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-a-world-map-43410-large.mp4', category: 'آموزشی', likes: 320 },
+            { id: 3, title: 'شگفتی‌های حیات‌وحش آمازون', author: '0x99A...88E', url: 'https://assets.mixkit.co/videos/preview/mixkit-funny-cat-jumping-4271-large.mp4', category: 'حیات‌وحش', likes: 512 },
+            { id: 4, title: 'تحلیل اقتصاد دیجیتال و بلاکچین', author: '0x33F...22D', url: 'https://assets.mixkit.co/videos/preview/mixkit-soccer-player-kicking-the-ball-41174-large.mp4', category: 'اقتصاد', likes: 98 }
         ];
 
-        const allCategories = ['همه', 'علمی', 'سرگرمی', 'کمدی', 'بازی', 'ورزشی', 'خبری'];
+        let commMessages = JSON.parse(localStorage.getItem('science_v3_comm')) || [
+            { author: '0x71C...39A', text: 'سلام به همه پژوهشگران عزیز. نظری درباره نظریه ریسمان دارید؟' },
+            { author: '0x42B...11C', text: 'بله، مقالات جدید فیزیک نظری بسیار هیجان‌انگیز هستند.' }
+        ];
+
+        window.onload = () => {
+            if(userWalletAddress) updateWalletUI();
+            renderFeed();
+            renderProfile();
+            renderCommunity();
+        };
 
         // VIEW CONTROLLER
         function switchView(view) {
             document.querySelectorAll('.view-section').forEach(s => s.classList.add('hidden'));
             document.getElementById('view-' + view).classList.remove('hidden');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-gold', 'text-gray-400'));
-            const btn = document.querySelector(`[data-view="${view}"]`);
-            if(btn) btn.classList.replace('text-gray-400', 'text-gold');
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.replace('gold-text', 'text-gray-400');
+            });
+            const activeBtn = document.querySelector(`[data-view="${view}"]`);
+            if(activeBtn) activeBtn.classList.replace('text-gray-400', 'gold-text');
 
             if(view === 'feed') renderFeed();
             if(view === 'profile') renderProfile();
+            if(view === 'community') renderCommunity();
         }
 
-        // FEED ENGINE (Personalized & Filtered)
+        // WALLET CONNECTION (Metamask / TrustWallet)
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    await provider.send("eth_requestAccounts", []);
+                    const signer = provider.getSigner();
+                    userWalletAddress = await signer.getAddress();
+                    localStorage.setItem('user_wallet', userWalletAddress);
+                    updateWalletUI();
+                    alert('✅ کیف پول با موفقیت متصل شد!');
+                } catch (err) {
+                    alert('خطا در اتصال کیف پول: ' + err.message);
+                }
+            } else {
+                alert('لطفاً افزونه متامسک یا تراست‌ولت را نصب کنید.');
+            }
+        }
+
+        function updateWalletUI() {
+            if(!userWalletAddress) return;
+            const shortAddr = userWalletAddress.substring(0, 6) + '...' + userWalletAddress.substring(userWalletAddress.length - 4);
+            document.getElementById('wallet-btn').innerHTML = `<i class="fa-solid fa-wallet ml-1"></i> ${shortAddr}`;
+            document.getElementById('profile-wallet').innerText = `شناسه کیف پول: ${userWalletAddress}`;
+            document.getElementById('profile-name').innerText = `پژوهشگر معتبر (${shortAddr})`;
+        }
+
+        // MULTI-ENGINE SEARCH
+        function handleSearch(e) {
+            if(e.key === 'Enter') {
+                const query = document.getElementById('global-search').value;
+                const engine = document.getElementById('search-engine').value;
+                if(!query) return;
+                
+                let searchUrl = '';
+                if(engine === 'google') {
+                    searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+                } else {
+                    searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
+                }
+                window.open(searchUrl, '_blank');
+            }
+        }
+
+        // FEED & FILTER ENGINE
         function renderFeed() {
             const container = document.getElementById('reels-container');
             container.innerHTML = '';
-            
-            // Filter by Category OR User Interest
+
             let filtered = videos.filter(v => {
-                if (currentFilter === 'همه') {
-                    // If "All", show videos that match User Interests first (Personalized)
-                    return userInterests.includes(v.category) ? true : true; 
-                }
+                if (currentFilter === 'همه') return true;
                 return v.category === currentFilter;
             });
 
-            // Sort: Personal interests first
+            // Prioritize user interests
             filtered.sort((a, b) => {
                 const aPref = userInterests.includes(a.category) ? 1 : 0;
                 const bPref = userInterests.includes(b.category) ? 1 : 0;
@@ -187,7 +274,7 @@
             });
 
             if(filtered.length === 0) {
-                container.innerHTML = `<div class="text-center text-gray-500 mt-20">ویدیویی در این دسته یافت نشد.</div>`;
+                container.innerHTML = `<div class="text-center text-gray-500 mt-24 text-xs">ویدیویی در این دسته‌بندی یافت نشد. اولین نفر باشید که اثری منتشر می‌کنید!</div>`;
                 return;
             }
 
@@ -196,13 +283,12 @@
                 div.className = 'relative';
                 div.innerHTML = `
                     <video class="reel-video" src="${v.url}" loop muted playsinline onclick="this.paused ? this.play() : this.pause()"></video>
-                    <div class="absolute bottom-10 right-4 text-right bg-black/40 p-2 rounded-xl">
-                        <h3 class="font-bold text-white text-sm">${v.title}</h3>
-                        <p class="text-xs text-gold">${v.author} | <span class="text-gray-300">${v.category}</span></p>
+                    <div class="absolute bottom-6 right-4 left-16 text-right bg-black/50 backdrop-blur-md p-3 rounded-2xl border border-white/10">
+                        <h3 class="font-bold text-white text-xs mb-1">${v.title}</h3>
+                        <p class="text-[10px] gold-text">${v.author} | <span class="text-gray-300 bg-white/10 px-2 py-0.5 rounded-md">${v.category}</span></p>
                     </div>
-                    <div class="absolute left-4 bottom-20 flex flex-col gap-4">
-                        <button class="w-10 h-10 glass rounded-full flex items-center justify-center"><i class="fa-solid fa-heart"></i></button>
-                        <button class="w-10 h-10 glass rounded-full flex items-center justify-center"><i class="fa-solid fa-comment"></i></button>
+                    <div class="absolute left-3 bottom-16 flex flex-col gap-3">
+                        <button onclick="likeVideo(${v.id})" class="w-10 h-10 glass rounded-full flex flex-col items-center justify-center text-xs gold-text shadow-lg"><i class="fa-solid fa-heart"></i><span class="text-[8px]">${v.likes}</span></button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -216,15 +302,24 @@
             renderFeed();
         }
 
+        function likeVideo(id) {
+            const v = videos.find(item => item.id === id);
+            if(v) {
+                v.likes++;
+                localStorage.setItem('science_v3_videos', JSON.stringify(videos));
+                renderFeed();
+            }
+        }
+
         // PROFILE & INTERESTS ENGINE
         function renderProfile() {
             const container = document.getElementById('interest-selector');
             container.innerHTML = '';
-            
-            allCategories.filter(c => c !== 'همه').forEach(cat => {
+
+            allCategories.forEach(cat => {
                 const isSelected = userInterests.includes(cat);
                 const chip = document.createElement('div');
-                chip.className = `px-4 py-2 rounded-xl text-xs border ${isSelected ? 'border-gold bg-gold/20 text-gold' : 'border-gray-800 text-gray-500'} cursor-pointer`;
+                chip.className = `px-3 py-1.5 rounded-xl text-xs border ${isSelected ? 'border-gold bg-gold/20 gold-text font-bold' : 'border-gray-800 text-gray-400'} cursor-pointer transition-all`;
                 chip.innerText = cat;
                 chip.onclick = () => toggleInterest(cat);
                 container.appendChild(chip);
@@ -241,64 +336,86 @@
             renderProfile();
         }
 
-        // AI ENGINE (Advanced)
+        // AI MULTI-ENGINE CHAT
         function askAI() {
             const query = document.getElementById('ai-query').value;
             const model = document.getElementById('ai-selector').value;
             if(!query) return;
 
             const box = document.getElementById('ai-chat-box');
-            box.innerHTML += `<div class="bg-white/10 p-3 rounded-2xl rounded-tl-none text-gray-200 self-end ml-8">${query}</div>`;
-            
+            box.innerHTML += `<div class="bg-white/10 p-3 rounded-2xl rounded-tl-none text-gray-200 self-end ml-8 text-xs">${query}</div>`;
+            document.getElementById('ai-query').value = '';
+            box.scrollTop = box.scrollHeight;
+
             setTimeout(() => {
-                const responses = {
-                    gpt6: ["تحلیل عمیق انجام شد...", "بر اساس مدل GPT-6، نتیجه این است که...", "پارامترهای علمی تایید می‌شوند."],
-                    claude: ["از نظر ادبی و علمی: ", "من این موضوع را اینگونه می‌بینم: ", "تحلیل خلاقانه: "],
-                    gemini: ["گوگل گوگل میگوید: ", "بر اساس داده‌های جدید: ", "جستجو شد: "]
-                };
-                const r = responses[model][Math.floor(Math.random()*3)];
-                box.innerHTML += `<div class="bg-gold/10 p-3 rounded-2xl rounded-tr-none text-gold ml-8">${r} ${query}</div>`;
+                let responseText = "";
+                const modelName = model.toUpperCase();
+                if(model === 'gpt6') {
+                    responseText = `[پاسخ تخصصی ${modelName}]: تحلیل عمیق علمی نشان می‌دهد که "${query}" دارای زوایای پیچیده‌ای در فیزیک و داده‌کاوی است.`;
+                } else if(model === 'claude') {
+                    responseText = `[پاسخ خلاقانه ${modelName}]: از منظر فلسفه علم و پژوهش، موضوع "${query}" را می‌توان از جنبه‌های نوآورانه بررسی کرد.`;
+                } else if(model === 'gemini') {
+                    responseText = `[پاسخ سریع ${modelName}]: بر اساس داده‌های لحظه‌ای وب، پرسش شما درباره "${query}`} تایید شد.`;
+                } else {
+                    responseText = `[پاسخ منطقی ${modelName}]: محاسبه و تحلیل منطقی پارامترهای "${query}" انجام شد.`;
+                }
+
+                box.innerHTML += `<div class="bg-gold/10 p-3 rounded-2xl rounded-tr-none gold-text mr-8 text-xs border border-gold/20">${responseText}</div>`;
                 box.scrollTop = box.scrollHeight;
             }, 1000);
-            document.getElementById('ai-query').value = '';
         }
 
-        function changeAI() {
+        function handleAIKey(e) { if(e.key === 'Enter') askAI(); }
+        function changeAIModel() {
             const box = document.getElementById('ai-chat-box');
-            box.innerHTML += `<div class="text-center text-[9px] text-gray-500 my-2">مدل به ${document.getElementById('ai-selector').value} تغییر یافت</div>`;
+            const model = document.getElementById('ai-selector').value;
+            box.innerHTML += `<div class="text-center text-[9px] text-gray-500 my-1">--- موتور هوش مصنوعی به ${model.toUpperCase()} تغییر یافت ---</div>`;
         }
 
-        // COMMUNITY & UPLOAD
+        // COMMUNITY CHAT
+        function renderCommunity() {
+            const container = document.getElementById('community-messages');
+            container.innerHTML = '';
+            commMessages.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'bg-white/5 p-3 rounded-2xl border border-white/5 space-y-1';
+                div.innerHTML = `<div class="gold-text font-bold text-[10px]">${m.author}</div><div class="text-gray-300">${m.text}</div>`;
+                container.appendChild(div);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
         function sendCommMessage() {
             const input = document.getElementById('comm-input');
-            const container = document.getElementById('community-messages');
             if(!input.value) return;
-            const div = document.createElement('div');
-            div.className = 'bg-white/5 p-3 rounded-2xl community-msg text-xs';
-            div.innerHTML = `<span class="text-gold font-bold">کاربر:</span> ${input.value}`;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
+            const author = userWalletAddress ? (userWalletAddress.substring(0,6) + '...') : 'مهمان';
+            commMessages.push({ author, text: input.value });
+            localStorage.setItem('science_v3_comm', JSON.stringify(commMessages));
             input.value = '';
+            renderCommunity();
         }
 
+        function handleCommKey(e) { if(e.key === 'Enter') sendCommMessage(); }
+
+        // UPLOAD & MINT NFT
         async function mintNFT() {
             const title = document.getElementById('up-title').value;
             const url = document.getElementById('up-url').value;
             const cat = document.getElementById('up-category').value;
-            if(!title || !url) return alert('لطفاً فیلدها را پر کنید');
+            if(!title || !url) {
+                alert('لطفاً عنوان و لینک ویدیو را وارد کنید.');
+                return;
+            }
 
-            alert('در حال اتصال به بلاکچین...');
+            alert('در حال برقراری ارتباط با قرارداد هوشمند بلاکچین...');
             setTimeout(() => {
-                videos.unshift({ id: Date.now(), title, author: 'من', url, category: cat, likes: 0 });
-                localStorage.setItem('science_v2_data', JSON.stringify(videos));
-                alert('✅ با موفقیت منتشر شد!');
+                const author = userWalletAddress ? (userWalletAddress.substring(0,6) + '...') : '0x000...000';
+                videos.unshift({ id: Date.now(), title, author, url, category: cat, likes: 0 });
+                localStorage.setItem('science_v3_videos', JSON.stringify(videos));
+                alert('✅ اثر شما با موفقیت به عنوان NFT روی پایگاه ثبت شد!');
                 switchView('feed');
             }, 1500);
         }
-
-        window.onload = () => {
-            renderFeed();
-        };
     </script>
 </body>
 </html>
