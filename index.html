@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پایگاه حقیقت علمی</title>
+    <title>پایگاه حقیقت علمی | Scientific Truth Platform</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -13,10 +13,10 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#eef2ff',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            900: '#312e81'
+                            50: '#f0fdf4',
+                            500: '#10b981',
+                            600: '#059669',
+                            900: '#064e3b',
                         }
                     }
                 }
@@ -35,318 +35,316 @@
         .snap-start { scroll-snap-align: start; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col select-none overflow-x-hidden">
 
-    <!-- Header / Navigation Top -->
-    <header class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-500 to-indigo-400 flex items-center justify-center shadow-lg shadow-brand-500/30">
-                <i class="fa-solid fa-atom text-white animate-spin" style="animation-duration: 10s;"></i>
+    <!-- Top Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-brand-500/30">
+                <i class="fa-solid fa-atom text-white text-lg animate-spin" style="animation-duration: 10s;"></i>
             </div>
-            <h1 class="font-black text-lg tracking-wide bg-gradient-to-r from-white via-indigo-200 to-brand-400 bg-clip-text text-transparent">حقیقت علمی</h1>
+            <div>
+                <h1 class="font-bold text-base bg-gradient-to-r from-brand-400 to-indigo-400 bg-clip-text text-transparent">حقیقت علمی</h1>
+                <p class="text-[10px] text-gray-400">پلتفرم مرجع ویدیوهای علمی</p>
+            </div>
         </div>
-        <div class="flex items-center gap-3">
-            <button id="wallet-btn" onclick="connectWallet()" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium px-3 py-2 rounded-xl border border-slate-700 transition">
+
+        <div class="flex items-center space-x-2 space-x-reverse">
+            <!-- Web3 Wallet Button -->
+            <button id="wallet-btn" onclick="toggleWallet()" class="flex items-center space-x-1.5 space-x-reverse bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs px-3 py-1.5 rounded-full transition-all">
                 <i class="fa-solid fa-wallet text-brand-400"></i>
                 <span id="wallet-text">اتصال کیف پول</span>
             </button>
-            <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center border border-slate-700 transition">
-                <i id="theme-icon" class="fa-solid fa-sun text-amber-400"></i>
+            <!-- Theme Toggle -->
+            <button onclick="toggleTheme()" class="w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 border border-gray-700 flex items-center justify-center text-gray-300 transition-all">
+                <i id="theme-icon" class="fa-solid fa-sun text-sm"></i>
             </button>
         </div>
     </header>
 
-    <!-- Main Content Area (SPA Views) -->
-    <main class="flex-1 pb-20 overflow-hidden relative">
-        
-        <!-- View 1: Reels Feed -->
-        <section id="view-feed" class="view-section h-[calc(100vh-130px)] overflow-y-scroll snap-y-mandatory no-scrollbar relative">
-            <div id="reels-container" class="w-full h-full">
-                <!-- Dynamic Reels Inserted Here via JS -->
-            </div>
-        </section>
+    <!-- Main Container Views -->
+    <main class="flex-1 pb-20 pt-16">
 
-        <!-- View 2: Explore / Categories -->
-        <section id="view-explore" class="view-section hidden p-4 max-w-xl mx-auto space-y-4">
-            <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
-                <button onclick="filterCategory('all')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium bg-brand-600 text-white transition whitespace-nowrap">همه</button>
-                <button onclick="filterCategory('نجوم')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 transition whitespace-nowrap">نجوم 🌌</button>
-                <button onclick="filterCategory('فیزیک')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 transition whitespace-nowrap">فیزیک ⚡</button>
-                <button onclick="filterCategory('زیست‌شناسی')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 transition whitespace-nowrap">زیست‌شناسی 🧬</button>
-                <button onclick="filterCategory('هوش مصنوعی')" class="cat-btn px-4 py-1.5 rounded-full text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 transition whitespace-nowrap">هوش مصنوعی 🤖</button>
+        <!-- VIEW 1: REELS FEED -->
+        <div id="view-feed" class="view-section relative w-full h-[calc(100vh-8rem)] overflow-y-scroll snap-y-mandatory no-scrollbar">
+            <!-- Categories Bar -->
+            <div class="sticky top-0 z-20 bg-gray-950/80 backdrop-blur-md px-4 py-2.5 flex items-center space-x-2 space-x-reverse overflow-x-auto no-scrollbar border-b border-gray-900">
+                <button onclick="filterCategory('همه')" class="cat-btn px-3.5 py-1 rounded-full text-xs font-medium bg-brand-500 text-white transition-all whitespace-nowrap">همه</button>
+                <button onclick="filterCategory('نجوم')" class="cat-btn px-3.5 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all whitespace-nowrap">نجوم و کیهان</button>
+                <button onclick="filterCategory('فیزیک')" class="cat-btn px-3.5 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all whitespace-nowrap">فیزیک کوانتوم</button>
+                <button onclick="filterCategory('زیست‌شناسی')" class="cat-btn px-3.5 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all whitespace-nowrap">زیست‌شناسی</button>
+                <button onclick="filterCategory('هوش مصنوعی')" class="cat-btn px-3.5 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all whitespace-nowrap">هوش مصنوعی</button>
             </div>
-            <div id="explore-grid" class="grid grid-cols-2 gap-3">
-                <!-- Dynamic Explore Cards -->
-            </div>
-        </section>
 
-        <!-- View 3: Upload Studio -->
-        <section id="view-upload" class="view-section hidden p-4 max-w-md mx-auto">
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl space-y-4">
-                <h2 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up text-brand-400"></i> انتشار ویدیوی علمی</h2>
-                <form id="upload-form" onsubmit="handleUpload(event)" class="space-y-3">
+            <!-- Reels Container -->
+            <div id="reels-container" class="h-full">
+                <!-- Videos injected dynamically via JS -->
+            </div>
+        </div>
+
+        <!-- VIEW 2: EXPLORE / SEARCH -->
+        <div id="view-explore" class="view-section hidden p-4 max-w-2xl mx-auto">
+            <div class="relative mb-6">
+                <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="جستجو در مقالات و ویدیوهای علمی..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 pr-11 text-sm focus:outline-none focus:border-brand-500 transition-all">
+                <i class="fa-solid fa-search absolute right-4 top-3.5 text-gray-500"></i>
+            </div>
+            <div id="search-results" class="grid grid-cols-1 gap-4">
+                <!-- Search results injected here -->
+            </div>
+        </div>
+
+        <!-- VIEW 3: UPLOAD STUDIO -->
+        <div id="view-upload" class="view-section hidden p-4 max-w-lg mx-auto">
+            <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 shadow-xl">
+                <h2 class="text-lg font-bold mb-4 flex items-center space-x-2 space-x-reverse">
+                    <i class="fa-solid fa-cloud-arrow-up text-brand-500"></i>
+                    <span>انتشار ویدیوی علمی جدید</span>
+                </h2>
+                <form id="upload-form" onsubmit="handleUpload(event)" class="space-y-4">
                     <div>
-                        <label class="text-xs text-slate-400 block mb-1">عنوان ویدیو</label>
-                        <input type="text" id="up-title" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand-500">
+                        <label class="block text-xs font-medium text-gray-400 mb-1">عنوان ویدیو</label>
+                        <input type="text" id="up-title" required placeholder="مثلاً: راز سیاه‌چاله‌ها چیست؟" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500">
                     </div>
                     <div>
-                        <label class="text-xs text-slate-400 block mb-1">نام سازنده / کانال</label>
-                        <input type="text" id="up-author" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand-500">
+                        <label class="block text-xs font-medium text-gray-400 mb-1">نام محقق / کانال</label>
+                        <input type="text" id="up-author" required placeholder="دکتر سارا احمدی" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500">
                     </div>
                     <div>
-                        <label class="text-xs text-slate-400 block mb-1">دسته‌بندی</label>
-                        <select id="up-cat" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand-500">
-                            <option value="نجوم">نجوم 🌌</option>
-                            <option value="فیزیک">فیزیک ⚡</option>
-                            <option value="زیست‌شناسی">زیست‌شناسی 🧬</option>
-                            <option value="هوش مصنوعی">هوش مصنوعی 🤖</option>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">دسته‌بندی</label>
+                        <select id="up-category" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500">
+                            <option value="نجوم">نجوم و کیهان</option>
+                            <option value="فیزیک">فیزیک کوانتوم</option>
+                            <option value="زیست‌شناسی">زیست‌شناسی</option>
+                            <option value="هوش مصنوعی">هوش مصنوعی</option>
                         </select>
                     </div>
                     <div>
-                        <label class="text-xs text-slate-400 block mb-1">لینک ویدیو (MP4 مستقیم یا نمونه)</label>
-                        <input type="url" id="up-url" required placeholder="https://..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand-500">
+                        <label class="block text-xs font-medium text-gray-400 mb-1">لینک ویدیو (MP4 مستقیم یا نمونه)</label>
+                        <input type="url" id="up-url" required placeholder="https://.../video.mp4" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500">
                     </div>
-                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white py-2.5 rounded-xl font-medium text-sm transition shadow-lg shadow-brand-600/30">انتشار در پایگاه</button>
+                    <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-medium py-3 rounded-xl transition-all shadow-lg shadow-brand-500/20 text-sm">
+                        انتشار فوری ویدیو
+                    </button>
                 </form>
             </div>
-        </section>
+        </div>
 
-        <!-- View 4: Profile / Dashboard -->
-        <section id="view-profile" class="view-section hidden p-4 max-w-md mx-auto space-y-4">
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center space-y-3">
-                <div class="w-20 h-20 bg-gradient-to-tr from-brand-600 to-indigo-400 rounded-full mx-auto flex items-center justify-center text-2xl font-bold shadow-xl shadow-brand-500/20">ع‌س</div>
+        <!-- VIEW 4: PROFILE -->
+        <div id="view-profile" class="view-section hidden p-4 max-w-lg mx-auto">
+            <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 text-center shadow-xl">
+                <div class="w-20 h-20 bg-gradient-to-tr from-brand-500 to-indigo-600 rounded-full mx-auto flex items-center justify-center text-3xl font-bold shadow-xl mb-4">
+                    ع‌م
+                </div>
                 <h2 id="profile-name" class="font-bold text-lg">پژوهشگر گرامی</h2>
-                <p id="profile-wallet" class="text-xs text-slate-400 font-mono bg-slate-950 py-1.5 px-3 rounded-lg inline-block">کیف پول متصل نیست</p>
+                <p id="profile-wallet" class="text-xs text-gray-400 mt-1 font-mono">کیف پول متصل نشده</p>
+                
+                <div class="grid grid-cols-3 gap-3 my-6 border-y border-gray-800 py-4">
+                    <div>
+                        <span id="stat-videos" class="block font-bold text-brand-400 text-base">0</span>
+                        <span class="text-[11px] text-gray-400">ویدیوها</span>
+                    </div>
+                    <div>
+                        <span id="stat-likes" class="block font-bold text-brand-400 text-base">0</span>
+                        <span class="text-[11px] text-gray-400">لایک‌ها</span>
+                    </div>
+                    <div>
+                        <span id="stat-donations" class="block font-bold text-brand-400 text-base">0 ETH</span>
+                        <span class="text-[11px] text-gray-400">حمایت‌ها</span>
+                    </div>
+                </div>
+
+                <div class="text-right space-y-3">
+                    <label class="text-xs font-medium text-gray-400">نام نمایشی پروفایل</label>
+                    <div class="flex space-x-2 space-x-reverse">
+                        <input type="text" id="edit-username" placeholder="نام جدید" class="flex-1 bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-sm">
+                        <button onclick="updateUsername()" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-xl text-xs font-medium transition-all">ذخیره</button>
+                    </div>
+                </div>
             </div>
-        </section>
+        </div>
+
     </main>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 px-6 py-3 flex justify-around items-center z-50">
-        <button onclick="switchView('feed')" class="nav-btn flex flex-col items-center gap-1 text-brand-400 transition" data-target="view-feed">
+    <nav class="fixed bottom-0 left-0 right-0 z-50 bg-gray-900/90 backdrop-blur-md border-t border-gray-800 px-6 py-2 flex items-center justify-between">
+        <button onclick="switchView('feed')" class="nav-btn flex flex-col items-center text-brand-500 transition-all" data-target="feed">
             <i class="fa-solid fa-clapperboard text-lg"></i>
-            <span class="text-[10px]">فید</span>
+            <span class="text-[10px] mt-1">فید ریلز</span>
         </button>
-        <button onclick="switchView('explore')" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition" data-target="view-explore">
+        <button onclick="switchView('explore')" class="nav-btn flex flex-col items-center text-gray-400 hover:text-gray-200 transition-all" data-target="explore">
             <i class="fa-solid fa-compass text-lg"></i>
-            <span class="text-[10px]">کاوش</span>
+            <span class="text-[10px] mt-1">کاوش</span>
         </button>
-        <button onclick="switchView('upload')" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition" data-target="view-upload">
+        <button onclick="switchView('upload')" class="nav-btn flex flex-col items-center text-gray-400 hover:text-gray-200 transition-all" data-target="upload">
             <i class="fa-solid fa-circle-plus text-lg"></i>
-            <span class="text-[10px]">افزودن</span>
+            <span class="text-[10px] mt-1">آپلود</span>
         </button>
-        <button onclick="switchView('profile')" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition" data-target="view-profile">
-            <i class="fa-solid fa-user-astronaut text-lg"></i>
-            <span class="text-[10px]">پروفایل</span>
+        <button onclick="switchView('profile')" class="nav-btn flex flex-col items-center text-gray-400 hover:text-gray-200 transition-all" data-target="profile">
+            <i class="fa-solid fa-user-gear text-lg"></i>
+            <span class="text-[10px] mt-1">پروفایل</span>
         </button>
     </nav>
 
     <!-- Comments Modal -->
-    <div id="comments-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center">
-        <div class="bg-slate-900 border border-slate-800 w-full sm:max-w-md h-[70vh] rounded-t-3xl sm:rounded-2xl flex flex-col overflow-hidden">
-            <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+    <div id="comments-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-end sm:items-center justify-center">
+        <div class="bg-gray-900 w-full sm:max-w-md h-[70vh] sm:h-[500px] rounded-t-3xl sm:rounded-3xl border border-gray-800 flex flex-col overflow-hidden shadow-2xl">
+            <div class="px-4 py-3 border-b border-gray-800 flex items-center justify-between">
                 <h3 class="font-bold text-sm">نظرات پژوهشگران</h3>
-                <button onclick="closeComments()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeComments()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div id="comments-list" class="flex-1 p-4 overflow-y-auto space-y-3 text-sm">
-                <!-- Comments rendered here -->
+            <div id="comments-list" class="flex-1 overflow-y-auto p-4 space-y-3">
+                <!-- Comments injected dynamically -->
             </div>
-            <div class="p-3 border-t border-slate-800 bg-slate-950 flex gap-2">
-                <input type="text" id="comment-input" placeholder="نظر علمی خود را بنویسید..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-brand-500">
-                <button onclick="postComment()" class="bg-brand-600 hover:bg-brand-500 px-4 py-2 rounded-xl text-xs font-medium text-white transition">ارسال</button>
+            <div class="p-3 border-t border-gray-800 flex space-x-2 space-x-reverse">
+                <input type="text" id="comment-input" placeholder="نظر خود را بنویسید..." class="flex-1 bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-brand-500">
+                <button onclick="postComment()" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-xl text-xs font-medium transition-all">ارسال</button>
             </div>
         </div>
     </div>
 
-    <!-- Application Script -->
+    <!-- JavaScript Application Logic -->
     <script>
-        let defaultVideos = [
-            { id: 1, title: "اسرار سیاه‌چاله‌ها و خمیدگی فضا-زمان", author: "دکتر سمیعی", category: "نجوم", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", likes: 142, comments: [{user: "علی", text: "بسیار جذاب بود!"}] },
-            { id: 2, title: "مکانیک کوانتومی به زبان ساده", author: "پروفسور رضایی", category: "فیزیک", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4", likes: 389, comments: [] },
-            { id: 3, title: "ژن‌درمانی و آینده پزشکی مدرن", author: "دکتر مهدوی", category: "زیست‌شناسی", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4", likes: 215, comments: [] }
+        // Default Sample Scientific Videos
+        const defaultVideos = [
+            {
+                id: 'v1',
+                title: 'اسرار شگفت‌انگیز سیاه‌چاله‌ها و خمیدگی فضا-زمان',
+                author: 'دکتر علیرضا جباری',
+                category: 'نجوم',
+                url: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-background-1610-large.mp4',
+                likes: 1420,
+                comments: [
+                    { user: 'مریم', text: 'بسیار عالی و علمی بود!' },
+                    { user: 'کوروش', text: 'فوق‌العاده بود استاد.' }
+                ]
+            },
+            {
+                id: 'v2',
+                title: 'مکانیک کوانتومی و دنیای موازی به زبان ساده',
+                author: 'پروفسور رادمهر',
+                category: 'فیزیک',
+                url: 'https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-screens-and-numbers-31950-large.mp4',
+                likes: 890,
+                comments: [
+                    { user: 'آرش', text: 'این تئوری واقعاً گیج‌کننده است اما جذاب.' }
+                ]
+            },
+            {
+                id: 'v3',
+                title: 'انقلاب هوش مصنوعی در درک ساختار پروتئین‌ها',
+                author: 'آزمایشگاه هوش زیستی',
+                category: 'هوش مصنوعی',
+                url: 'https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-futuristic-hologram-41680-large.mp4',
+                likes: 2310,
+                comments: []
+            }
         ];
 
         let videos = JSON.parse(localStorage.getItem('scientific_videos')) || defaultVideos;
-        let currentActiveVideoId = null;
-        let currentWalletAddress = localStorage.getItem('scientific_wallet') || null;
+        let currentCategory = 'همه';
+        let currentVideoForComments = null;
+        let userWallet = localStorage.getItem('scientific_wallet') || null;
+        let userName = localStorage.getItem('scientific_username') || 'پژوهشگر گرامی';
 
-        function saveVideos() {
-            localStorage.setItem('scientific_videos', JSON.stringify(videos));
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            renderReels();
+            updateWalletUI();
+            document.getElementById('profile-name').innerText = userName;
+            document.getElementById('edit-username').value = userName;
+            updateStats();
+        });
+
+        // Navigation Switcher
+        function switchView(target) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${target}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-brand-500');
+                btn.classList.add('text-gray-400');
+            });
+            document.querySelector(`[data-target="${target}"]`).classList.add('text-brand-500');
+            document.querySelector(`[data-target="${target}"]`).classList.remove('text-gray-400');
         }
 
-        function renderReels(filterCat = 'all') {
+        // Render Reels Feed
+        function renderReels(category = 'همه') {
             const container = document.getElementById('reels-container');
             container.innerHTML = '';
-            
-            let filtered = filterCat === 'all' ? videos : videos.filter(v => v.category === filterCat);
-            if(filtered.length === 0) {
-                container.innerHTML = `<div class='h-full flex items-center justify-center text-slate-500 text-sm'>ویدیویی در این دسته یافت نشد.</div>`;
+
+            const filtered = category === 'همه' ? videos : videos.filter(v => v.category === category);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class='flex items-center justify-center h-full text-gray-500 text-sm'>ویدیویی در این دسته‌بندی یافت نشد.</div>`;
                 return;
             }
 
             filtered.forEach(video => {
-                let card = document.createElement('div');
-                card.className = 'w-full h-full snap-start relative flex items-center justify-center bg-black';
+                const card = document.createElement('div');
+                card.className = 'relative w-full h-full snap-start flex flex-col justify-end p-4 bg-black overflow-hidden';
                 card.innerHTML = `
-                    <video src="${video.url}" class="w-full h-full object-cover" loop playsinline onclick="togglePlay(this)"></video>
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-900/30 pointer-events-none"></div>
-                    <div class="absolute bottom-6 right-4 left-20 z-10 space-y-2 pointer-events-auto">
-                        <span class="bg-brand-600/80 backdrop-blur-md text-[10px] px-2.5 py-1 rounded-full font-medium text-white">${video.category}</span>
-                        <h3 class="font-bold text-sm text-white">${video.title}</h3>
-                        <p class="text-xs text-slate-300">@${video.author}</p>
-                    </div>
-                    <div class="absolute bottom-6 left-4 z-10 flex flex-col items-center gap-4">
-                        <button onclick="likeVideo(${video.id})" class="w-10 h-10 rounded-full bg-slate-900/60 backdrop-blur-md flex items-center justify-center text-rose-500 hover:scale-110 transition shadow-lg">
-                            <i class="fa-solid fa-heart"></i>
+                    <video src="${video.url}" class="absolute inset-0 w-full h-full object-cover" loop playsinline onclick="togglePlayPause(this)"></video>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none"></div>
+
+                    <!-- Right Action Sidebar -->
+                    <div class="absolute left-4 bottom-20 flex flex-col items-center space-y-4 z-10">
+                        <button onclick="likeVideo('${video.id}')" class="w-11 h-11 bg-gray-900/60 backdrop-blur-md rounded-full flex flex-col items-center justify-center text-red-500 hover:scale-110 transition-all shadow-lg">
+                            <i class="fa-solid fa-heart text-lg"></i>
                         </button>
                         <span class="text-xs font-bold text-white">${video.likes}</span>
-                        <button onclick="openComments(${video.id})" class="w-10 h-10 rounded-full bg-slate-900/60 backdrop-blur-md flex items-center justify-center text-white hover:scale-110 transition shadow-lg">
-                            <i class="fa-solid fa-comment"></i>
+
+                        <button onclick="openComments('${video.id}')" class="w-11 h-11 bg-gray-900/60 backdrop-blur-md rounded-full flex flex-col items-center justify-center text-white hover:scale-110 transition-all shadow-lg">
+                            <i class="fa-solid fa-comment text-lg"></i>
                         </button>
                         <span class="text-xs font-bold text-white">${video.comments.length}</span>
-                        <button onclick="donateCrypto()" class="w-10 h-10 rounded-full bg-amber-500/80 backdrop-blur-md flex items-center justify-center text-white hover:scale-110 transition shadow-lg" title="حمایت مالی (Web3)">
-                            <i class="fa-solid fa-coins"></i>
+
+                        <button onclick="donateCrypto()" class="w-11 h-11 bg-brand-500/80 backdrop-blur-md rounded-full flex flex-col items-center justify-center text-white hover:scale-110 transition-all shadow-lg">
+                            <i class="fa-solid fa-bolt text-lg"></i>
                         </button>
+                        <span class="text-[10px] text-brand-300 font-bold">حمایت</span>
+                    </div>
+
+                    <!-- Bottom Video Info -->
+                    <div class="relative z-10 mb-2 max-w-[80%]">
+                        <span class="px-2.5 py-1 bg-brand-500/20 border border-brand-500/40 text-brand-300 rounded-full text-[10px] font-medium">${video.category}</span>
+                        <h3 class="font-bold text-sm mt-2 text-white leading-snug">${video.title}</h3>
+                        <p class="text-xs text-gray-300 mt-1"><i class="fa-solid fa-user-graduate ml-1"></i>${video.author}</p>
                     </div>
                 `;
                 container.appendChild(card);
             });
-
-            // Intersection Observer to auto-play active video
-            observerVideos();
         }
 
-        function observerVideos() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    const video = entry.target.querySelector('video');
-                    if (video) {
-                        if (entry.isIntersecting) {
-                            video.play().catch(e => console.log("Auto-play blocked"));
-                        } else {
-                            video.pause();
-                        }
-                    }
-                });
-            }, { threshold: 0.6 });
-
-            document.querySelectorAll('#reels-container > div').forEach(div => observer.observe(div));
-        }
-
-        function togglePlay(videoEl) {
+        function togglePlayPause(videoEl) {
             if (videoEl.paused) videoEl.play();
             else videoEl.pause();
         }
 
+        function filterCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = btn.innerText.includes(cat) || (cat === 'همه' && btn.innerText === 'همه')
+                    ? 'cat-btn px-3.5 py-1 rounded-full text-xs font-medium bg-brand-500 text-white transition-all whitespace-nowrap'
+                    : 'cat-btn px-3.5 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 transition-all whitespace-nowrap';
+            });
+            renderReels(cat);
+        }
+
+        // Like System
         function likeVideo(id) {
-            let v = videos.find(item => item.id === id);
+            const v = videos.find(item => item.id === id);
             if (v) {
                 v.likes++;
-                saveVideos();
-                renderReels();
+                localStorage.setItem('scientific_videos', JSON.stringify(videos));
+                renderReels(currentCategory);
+                updateStats();
             }
         }
 
-        function switchView(viewName) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`view-${viewName}`).classList.remove('hidden');
-
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-brand-400');
-                btn.classList.add('text-slate-400');
-                if(btn.getAttribute('data-target') === `view-${viewName}`) {
-                    btn.classList.remove('text-slate-400');
-                    btn.classList.add('text-brand-400');
-                }
-            });
-
-            if(viewName === 'explore') renderExplore();
-            if(viewName === 'feed') renderReels();
-        }
-
-        function renderExplore(cat = 'all') {
-            const grid = document.getElementById('explore-grid');
-            grid.innerHTML = '';
-            let filtered = cat === 'all' ? videos : videos.filter(v => v.category === cat);
-            
-            filtered.forEach(v => {
-                let box = document.createElement('div');
-                box.className = 'bg-slate-900 border border-slate-800 rounded-xl overflow-hidden p-3 space-y-2';
-                box.innerHTML = `
-                    <div class="h-28 bg-slate-950 rounded-lg overflow-hidden relative">
-                        <video src="${v.url}" class="w-full h-full object-cover"></video>
-                    </div>
-                    <h4 class="font-bold text-xs line-clamp-1 text-white">${v.title}</h4>
-                    <div class="flex justify-between items-center text-[10px] text-slate-400">
-                        <span>@${v.author}</span>
-                        <span><i class="fa-solid fa-heart text-rose-500"></i> ${v.likes}</span>
-                    </div>
-                `;
-                grid.appendChild(box);
-            });
-        }
-
-        function filterCategory(cat) {
-            renderExplore(cat);
-        }
-
-        function handleUpload(e) {
-            e.preventDefault();
-            let newVid = {
-                id: Date.now(),
-                title: document.getElementById('up-title').value,
-                author: document.getElementById('up-author').value,
-                category: document.getElementById('up-cat').value,
-                url: document.getElementById('up-url').value,
-                likes: 0,
-                comments: []
-            };
-            videos.unshift(newVid);
-            saveVideos();
-            alert('ویدیوی شما با موفقیت در پایگاه حقیقت علمی ثبت شد.');
-            document.getElementById('upload-form').reset();
-            switchView('feed');
-        }
-
-        async function connectWallet() {
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    const provider = new ethers.providers.Web3Provider(window.ethereum);
-                    await provider.send("eth_requestAccounts", []);
-                    const signer = provider.getSigner();
-                    currentWalletAddress = await signer.getAddress();
-                    localStorage.setItem('scientific_wallet', currentWalletAddress);
-                    document.getElementById('wallet-text').innerText = currentWalletAddress.substring(0, 6) + '...' + currentWalletAddress.substring(38);
-                    document.getElementById('profile-wallet').innerText = currentWalletAddress;
-                } catch (err) {
-                    console.error(err);
-                }
-            } else {
-                alert('لطفاً افزونه کیف پول متامسک را نصب کنید.');
-            }
-        }
-
-        async function donateCrypto() {
-            if (!currentWalletAddress) {
-                alert('لطفاً ابتدا کیف پول خود را متصل کنید.');
-                await connectWallet();
-                return;
-            }
-            try {
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const signer = provider.getSigner();
-                const tx = await signer.sendTransaction({
-                    to: currentWalletAddress, // ارسال تست به خود یا سازنده
-                    value: ethers.utils.parseEther("0.0001")
-                });
-                alert('تراکنش حمایت مالی ارسال شد! هش تراکنش: ' + tx.hash);
-            } catch (err) {
-                alert('تراکنش لغو شد یا خطایی رخ داد.');
-            }
-        }
-
+        // Comments System
         function openComments(id) {
-            currentActiveVideoId = id;
+            currentVideoForComments = id;
             renderComments();
             document.getElementById('comments-modal').classList.remove('hidden');
         }
@@ -356,55 +354,162 @@
         }
 
         function renderComments() {
+            const v = videos.find(item => item.id === currentVideoForComments);
             const list = document.getElementById('comments-list');
             list.innerHTML = '';
-            let v = videos.find(item => item.id === currentActiveVideoId);
-            if(!v || v.comments.length === 0) {
-                list.innerHTML = `<div class='text-center text-slate-500 py-10'>هنوز نظری ثبت نشده است. اولین نفر باشید!</div>`;
+            if (!v || v.comments.length === 0) {
+                list.innerHTML = '<div class="text-center text-gray-500 text-xs py-8">هنوز نظری ثبت نشده است. اولین نفر باشید!</div>';
                 return;
             }
             v.comments.forEach(c => {
-                let div = document.createElement('div');
-                div.className = 'bg-slate-950 border border-slate-800/60 p-3 rounded-xl space-y-1';
-                div.innerHTML = `<div class="font-bold text-xs text-brand-400">${c.user}</div><div class="text-xs text-slate-300">${c.text}</div>`;
+                const div = document.createElement('div');
+                div.className = 'bg-gray-950 p-3 rounded-2xl border border-gray-800/60';
+                div.innerHTML = `<span class="font-bold text-xs text-brand-400">${c.user}</span><p class="text-xs text-gray-300 mt-1">${c.text}</p>`;
                 list.appendChild(div);
             });
         }
 
         function postComment() {
-            let input = document.getElementById('comment-input');
-            let text = input.value.trim();
-            if(!text) return;
-            let v = videos.find(item => item.id === currentActiveVideoId);
-            if(v) {
-                v.comments.push({ user: currentWalletAddress ? currentWalletAddress.substring(0,6) : 'پژوهشگر مهمان', text: text });
-                saveVideos();
+            const input = document.getElementById('comment-input');
+            const text = input.value.trim();
+            if (!text || !currentVideoForComments) return;
+
+            const v = videos.find(item => item.id === currentVideoForComments);
+            if (v) {
+                v.comments.push({ user: userName, text: text });
+                localStorage.setItem('scientific_videos', JSON.stringify(videos));
                 input.value = '';
                 renderComments();
-                renderReels();
+                renderReels(currentCategory);
             }
         }
 
+        // Upload System
+        function handleUpload(e) {
+            e.preventDefault();
+            const newVideo = {
+                id: 'v_' + Date.now(),
+                title: document.getElementById('up-title').value,
+                author: document.getElementById('up-author').value,
+                category: document.getElementById('up-category').value,
+                url: document.getElementById('up-url').value,
+                likes: 0,
+                comments: []
+            };
+
+            videos.unshift(newVideo);
+            localStorage.setItem('scientific_videos', JSON.stringify(videos));
+            document.getElementById('upload-form').reset();
+            switchView('feed');
+            renderReels('همه');
+            updateStats();
+        }
+
+        // Search System
+        function handleSearch(query) {
+            const resultsContainer = document.getElementById('search-results');
+            resultsContainer.innerHTML = '';
+            if (!query.trim()) return;
+
+            const matched = videos.filter(v => v.title.includes(query) || v.author.includes(query) || v.category.includes(query));
+            if (matched.length === 0) {
+                resultsContainer.innerHTML = '<div class="text-center text-gray-500 text-xs py-8">نتیجه‌ای یافت نشد.</div>';
+                return;
+            }
+
+            matched.forEach(v => {
+                const div = document.createElement('div');
+                div.className = 'bg-gray-900 border border-gray-800 p-4 rounded-2xl flex items-center justify-between';
+                div.innerHTML = `
+                    <div>
+                        <span class="text-[10px] text-brand-400 font-medium">${v.category}</span>
+                        <h4 class="font-bold text-xs mt-1">${v.title}</h4>
+                        <p class="text-[10px] text-gray-400 mt-0.5">${v.author}</p>
+                    </div>
+                    <button onclick="switchView('feed');" class="bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-xl text-xs">مشاهده</button>
+                `;
+                resultsContainer.appendChild(div);
+            });
+        }
+
+        // Web3 Wallet Integration (MetaMask via Ethers.js)
+        async function toggleWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    const accounts = await provider.send("eth_requestAccounts", []);
+                    userWallet = accounts[0];
+                    localStorage.setItem('scientific_wallet', userWallet);
+                    updateWalletUI();
+                } catch (err) {
+                    console.error(err);
+                }
+            } else {
+                alert('لطفاً افزونه کیف پول MetaMask را نصب کنید.');
+            }
+        }
+
+        function updateWalletUI() {
+            const btnText = document.getElementById('wallet-text');
+            const profileWallet = document.getElementById('profile-wallet');
+            if (userWallet) {
+                btnText.innerText = userWallet.substring(0, 6) + '...' + userWallet.substring(38);
+                profileWallet.innerText = userWallet;
+            } else {
+                btnText.innerText = 'اتصال کیف پول';
+                profileWallet.innerText = 'کیف پول متصل نشده';
+            }
+        }
+
+        async function donateCrypto() {
+            if (!userWallet) {
+                alert('لطفاً ابتدا کیف پول MetaMask خود را متصل کنید.');
+                await toggleWallet();
+                return;
+            }
+            try {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = provider.getSigner();
+                const tx = await signer.sendTransaction({
+                    to: "0x71C305E763D134268615A3EE596B1CBE24F445c4", // آدرس تست فاندیشن
+                    value: ethers.utils.parseEther("0.0001")
+                });
+                alert('تراکنش حمایت مالی با موفقیت ارسال شد! هش: ' + tx.hash);
+            } catch (err) {
+                alert('خطا در تراکنش یا لغو توسط کاربر.');
+                console.error(err);
+            }
+        }
+
+        // Profile Updates
+        function updateUsername() {
+            const val = document.getElementById('edit-username').value.trim();
+            if (val) {
+                userName = val;
+                localStorage.setItem('scientific_username', userName);
+                document.getElementById('profile-name').innerText = userName;
+                alert('نام کاربری با موفقیت به‌روزرسانی شد.');
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('stat-videos').innerText = videos.length;
+            const totalLikes = videos.reduce((acc, curr) => acc + curr.likes, 0);
+            document.getElementById('stat-likes').innerText = totalLikes;
+        }
+
+        // Theme Toggle
         function toggleTheme() {
             const html = document.documentElement;
             const icon = document.getElementById('theme-icon');
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
-                icon.className = 'fa-solid fa-moon text-indigo-600';
+                icon.className = 'fa-solid fa-moon text-sm';
             } else {
                 html.classList.add('dark');
-                icon.className = 'fa-solid fa-sun text-amber-400';
+                icon.className = 'fa-solid fa-sun text-sm';
             }
         }
-
-        // Initialize App on Load
-        window.addEventListener('DOMContentLoaded', () => {
-            renderReels();
-            if(currentWalletAddress) {
-                document.getElementById('wallet-text').innerText = currentWalletAddress.substring(0, 6) + '...' + currentWalletAddress.substring(38);
-                document.getElementById('profile-wallet').innerText = currentWalletAddress;
-            }
-        });
     </script>
 </body>
 </html>
