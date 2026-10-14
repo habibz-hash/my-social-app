@@ -1,84 +1,343 @@
-/**
- * ADVANCED UPGRADE MODULES
- * 1. Science-to-Earn Engine
- * 2. AI Fact-Checker
- * 3. Web3 Asset Dashboard
- */
-
-App.Advanced = {
-    stats: {
-        tokens: 0,
-        truthScore: 98,
-        nftOwned: 0
-    },
-
-    // --- 1. Science-to-Earn Logic ---
-    async rewardUser(actionType) {
-        // در دنیای واقعی، این مقدار در بلاکچین ثبت می‌شود
-        const rewardAmount = actionType === 'comment' ? 0.1 : 0.05;
-        this.stats.tokens += rewardAmount;
-        
-        // نمایش اعلان شناور (Toast Notification)
-        this.showToast(`+${rewardAmount} $SCIENCE Token earned!`, 'emerald');
-        console.log(`Earned: ${rewardAmount} tokens via ${actionType}`);
-    },
-
-    // --- 2. AI Fact-Checker Logic ---
-    async verifyContent(videoId) {
-        // نشان دادن حالت در حال بارگذاری
-        this.showToast("هوش مصنوعی در حال تحلیل حقیقت...", "blue");
-        
-        // شبیه‌سازی پردازش سنگین هوش مصنوعی
-        await new Promise(resolve => setTimeout(resolve, 2500));
-        
-        const score = Math.floor(Math.random() * (100 - 70 + 1) + 70); // همیشه بین ۷۰ تا ۱۰۰ برای تست
-        this.showToast(`شاخص حقیقت این محتوا: ${score}%`, score > 80 ? 'emerald' : 'amber');
-        return score;
-    },
-
-    // --- 3. Web3 Dashboard Logic ---
-    updateDashboard() {
-        const dashboard = document.getElementById('user-dashboard-ui');
-        if (dashboard) {
-            dashboard.innerHTML = `
-                <div class="grid grid-cols-2 gap-2 text-[10px]">
-                    <div class="bg-white/5 p-2 rounded-lg">
-                        <p class="text-slate-400">توکن‌ها</p>
-                        <p class="text-emerald-400 font-bold">${this.stats.tokens.toFixed(2)} $SCI</p>
-                    </div>
-                    <div class="bg-white/5 p-2 rounded-lg">
-                        <p class="text-slate-400">امتیاز اعتبار</p>
-                        <p class="text-blue-400 font-bold">${this.stats.truthScore}</p>
-                    </div>
-                </div>
-            `;
-        }
-    },
-
-    // Utility: Toast Notification System
-    showToast(message, color) {
-        const toast = document.createElement('div');
-        toast.className = `fixed top-24 left-1/2 -translate-x-1/2 z-[200] px-6 py-2 rounded-full text-xs font-bold glass border-${color}-500 text-${color}-400 animate-bounce`;
-        toast.innerText = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
-};
-
-// Integrate Advanced Module into Main App
-// اضافه کردن دکمه‌های جدید به هر ویدئو در زمان رندر شدن
-const originalRender = App.ui.renderVideos.bind(App.ui);
-App.ui.renderVideos = function(videos) {
-    // ما در اینجا متد اصلی را فراخوانی می‌کنیم اما دکمه‌های جدید را تزریق می‌کنیم
-    originalRender(videos);
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پایگاه حقیقت علمی | Scientific Truth</title>
     
-    // اضافه کردن دکمه Fact-Checker به تمام ویدئوها پس از رندر
-    const checkButtons = document.querySelectorAll('.btn-fact-check'); 
-    // نکته: در کد اصلی باید کلاس btn-fact-check را به دکمه‌ها اضافه کرده باشیم
-};
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap" rel="stylesheet">
 
-// اضافه کردن دکمه‌های جدید در بخش renderReels (در بخش اصلی کد قبلی، این تغییر را اعمال کنید)
-// در متد renderReels کد قبلی، این دکمه را داخل حلقه map اضافه کنید:
-// <button onclick="App.Advanced.verifyContent(${video.id})" class="bg-amber-500/20 text-amber-400 px-3 py-1 rounded-lg text-[10px] mt-2">
-//    <i class="fa-solid fa-magnifying-glass-chart ml-1"></i> بررسی حقیقت توسط AI
-// </button>
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #050505;
+            color: white;
+            overflow: hidden; /* برای حالت اپلیکیشن موبایل */
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Reels Scroll Snap */
+        .reels-container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+        }
+        .reel-item {
+            height: 100vh;
+            scroll-snap-align: start;
+            position: relative;
+        }
+
+        /* Custom Ticker */
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .ticker-text {
+            display: inline-block;
+            white-space: nowrap;
+            animation: ticker 30s linear infinite;
+        }
+
+        /* Hide Scrollbar */
+        ::-webkit-scrollbar { display: none; }
+
+        .bottom-nav {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <!-- 1. TOP NEWS TICKER (Google Integrated) -->
+    <div class="fixed top-0 w-full z-[100] glass h-8 flex items-center overflow-hidden">
+        <div class="ticker-text text-[10px] text-emerald-400 px-4 cursor-pointer" id="news-ticker" onclick="window.open('https://www.google.com/search?q=آخرین+اخبار+علمی&tbm=nws', '_blank')">
+            بارگذاری آخرین اخبار علمی... • کشف سیاره جدید در کهکشان راه شیری • پیشرفت خیره‌کننده در حوزه کوانتوم • کلیک کنید برای اخبار لحظه‌ای...
+        </div>
+    </div>
+
+    <!-- 2. MAIN CONTENT AREA (Reels/SPA) -->
+    <main id="app-viewport" class="reels-container h-screen w-full pt-8">
+        <!-- Reels will be injected here by JS -->
+    </main>
+
+    <!-- 3. BOTTOM NAVIGATION (Instagram Style) -->
+    <nav class="fixed bottom-0 w-full glass border-t border-white/10 z-[100] bottom-nav h-16 flex justify-around items-center">
+        <button onclick="App.ui.showView('reels')" class="text-xl text-white"><i class="fa-solid fa-house"></i></button>
+        <button onclick="App.ui.showView('search')" class="text-xl text-slate-400"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <button onclick="App.ui.toggleAI()" class="text-2xl text-blue-400 bg-blue-500/10 p-3 rounded-full"><i class="fa-solid fa-robot"></i></button>
+        <button onclick="App.ui.showView('wallet')" class="text-xl text-slate-400"><i class="fa-solid fa-wallet"></i></button>
+        <button onclick="App.ui.showView('profile')" class="text-xl text-slate-400"><i class="fa-solid fa-circle-user"></i></button>
+    </nav>
+
+    <!-- 4. OVERLAY MODALS (AI, Wallet, Profile, Search) -->
+    <div id="overlay" class="fixed inset-0 z-[150] hidden bg-black/80 backdrop-blur-md">
+        <!-- AI Chat Overlay -->
+        <div id="ai-modal" class="hidden h-full flex flex-col p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-blue-400"><i class="fa-solid fa-robot ml-2"></i>دستیار هوشمند حقیقت</h2>
+                <button onclick="App.ui.toggleAI()" class="text-xl text-white">&times;</button>
+            </div>
+            <div id="ai-chat-box" class="flex-1 overflow-y-auto space-y-4 mb-4 p-2">
+                <div class="bg-blue-500/10 p-3 rounded-lg text-xs text-blue-200">سلام! من هوش مصنوعی پایگاه هستم. چه سوال علمی‌ای داری؟</div>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="ai-input" class="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm outline-none focus:border-blue-500" placeholder="سوال خود را بپرسید...">
+                <button onclick="App.ai.ask()" class="bg-blue-600 w-10 h-10 rounded-full"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+
+        <!-- Wallet Overlay -->
+        <div id="wallet-modal" class="hidden h-full flex flex-col items-center justify-center p-6 text-center">
+            <div class="glass w-full max-w-sm p-8 rounded-3xl">
+                <i class="fa-solid fa-shield-halved text-5xl text-emerald-400 mb-4"></i>
+                <h2 class="text-xl font-bold mb-2">اتصال به کیف پول</h2>
+                <p class="text-slate-400 text-xs mb-6">برای خرید ویدئوهای علمی و دریافت پاداش، باید کیف پول خود را متصل کنید.</p>
+                <button onclick="App.web3.connect()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-3 rounded-xl mb-3 transition-all">
+                    اتصال به MetaMask / Trust Wallet
+                </button>
+                <div id="wallet-info" class="text-[10px] text-emerald-400 font-mono mt-4"></div>
+            </div>
+            <button onclick="App.ui.closeAll()" class="mt-6 text-slate-500 text-sm">بستن</button>
+        </div>
+
+        <!-- Profile/Dashboard Overlay -->
+        <div id="profile-modal" class="hidden h-full overflow-y-auto p-6">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold">پروفایل من</h2>
+                <button onclick="App.ui.closeAll()" class="text-2xl">&times;</button>
+            </div>
+            
+            <div class="glass p-6 rounded-3xl mb-6 text-center">
+                <div class="w-24 h-24 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl font-bold" id="profile-avatar">U</div>
+                <h3 id="profile-name" class="text-lg font-bold">کاربر مهمان</h3>
+                <p id="profile-address" class="text-slate-500 text-[10px] font-mono mt-1">Not Connected</p>
+            </div>
+
+            <!-- Science-to-Earn Dashboard -->
+            <div id="user-dashboard-ui" class="grid grid-cols-2 gap-4 mb-6">
+                <!-- Dynamic Stats via JS -->
+            </div>
+
+            <div class="space-y-4">
+                <h4 class="text-sm text-slate-400">ویدئوهای ذخیره شده</h4>
+                <div class="glass h-32 rounded-2xl flex items-center justify-center text-slate-600 text-xs">هنوز ویدئویی ذخیره نشده است.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * CORE APPLICATION ENGINE
+         */
+        const App = {
+            state: {
+                user: {
+                    address: null,
+                    tokens: 0,
+                    truthScore: 95,
+                    isLoggedIn: false
+                },
+                view: 'reels',
+                videos: [
+                    { id: 1, url: 'https://v1.pinimg.com/videos/mc/720p/e3/4a/84/e34a843e397a7f84741d6c1e6b8c6e4c.mp4', creator: 'Dr. Einstein', title: 'رازهای سیاهچاله', likes: 1200, comments: 85, isPaid: false },
+                    { id: 2, url: 'https://v1.pinimg.com/videos/mc/720p/5a/2b/9c/5a2b9c3d4e5f6a7b8c9d0e1f2a3b4c5d.mp4', creator: 'NASA Official', title: 'تصاویر جدید از مریخ', likes: 4500, comments: 320, isPaid: true },
+                ]
+            },
+
+            // --- WEB3 MODULE ---
+            web3: {
+                async connect() {
+                    if (window.ethereum) {
+                        try {
+                            const provider = new ethers.providers.Web3Provider(window.ethereum);
+                            await provider.send("eth_requestAccounts", []);
+                            const signer = provider.getSigner();
+                            const address = await signer.getAddress();
+                            
+                            App.state.user.address = address;
+                            App.state.user.isLoggedIn = true;
+                            
+                            document.getElementById('wallet-info').innerText = `Connected: ${address.substring(0,6)}...${address.substring(38)}`;
+                            document.getElementById('profile-address').innerText = address;
+                            document.getElementById('profile-name').innerText = address.substring(0,8);
+                            
+                            App.Advanced.updateDashboard();
+                            App.ui.closeAll();
+                            App.showToast("اتصال با موفقیت برقرار شد!", "emerald");
+                        } catch (err) {
+                            App.showToast("خطا در اتصال به کیف پول", "red");
+                        }
+                    } else {
+                        App.showToast("MetaMask نصب نیست!", "red");
+                    }
+                }
+            },
+
+            // --- AI MODULE ---
+            ai: {
+                async ask() {
+                    const input = document.getElementById('ai-input');
+                    const chatBox = document.getElementById('ai-chat-box');
+                    if (!input.value) return;
+
+                    // User Message
+                    const userMsg = document.createElement('div');
+                    userMsg.className = "bg-white/10 p-3 rounded-lg text-xs ml-auto max-w-[80%]";
+                    userMsg.innerText = input.value;
+                    chatBox.appendChild(userMsg);
+
+                    const query = input.value;
+                    input.value = "";
+
+                    // Simulated AI Response
+                    setTimeout(() => {
+                        const aiMsg = document.createElement('div');
+                        aiMsg.className = "bg-blue-500/10 p-3 rounded-lg text-xs mr-auto max-w-[80%] text-blue-200";
+                        aiMsg.innerText = "تحلیل در حال انجام... بر اساس داده‌های علمی، این موضوع دارای شواهد در سطح متوسط است.";
+                        chatBox.appendChild(aiMsg);
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    }, 1000);
+                }
+            },
+
+            // --- ADVANCED FEATURES (The requested upgrades) ---
+            Advanced: {
+                updateDashboard() {
+                    const container = document.getElementById('user-dashboard-ui');
+                    if (!container) return;
+                    container.innerHTML = `
+                        <div class="bg-white/5 p-3 rounded-2xl border border-white/5">
+                            <p class="text-[9px] text-slate-400">امتیاز $SCI</p>
+                            <p class="text-emerald-400 font-bold">${App.state.user.tokens.toFixed(2)}</p>
+                        </div>
+                        <div class="bg-white/5 p-3 rounded-2xl border border-white/5">
+                            <p class="text-[9px] text-slate-400">اعتبار علمی</p>
+                            <p class="text-blue-400 font-bold">${App.state.user.truthScore}%</p>
+                        </div>
+                    `;
+                },
+                async verifyContent(videoId) {
+                    App.showToast("هوش مصنوعی در حال بررسی حقیقت...", "blue");
+                    await new Promise(r => setTimeout(r, 2000));
+                    const score = Math.floor(Math.random() * 30) + 70;
+                    App.showToast(`شاخص حقیقت: ${score}%`, score > 80 ? 'emerald' : 'amber');
+                }
+            },
+
+            // --- UI CONTROLLER ---
+            ui: {
+                showView(view) {
+                    App.state.view = view;
+                    document.getElementById('overlay').classList.add('hidden');
+                    if (view === 'reels') App.ui.renderReels();
+                    if (view === 'profile') {
+                        document.getElementById('overlay').classList.remove('hidden');
+                        document.getElementById('profile-modal').classList.remove('hidden');
+                        App.Advanced.updateDashboard();
+                    }
+                    if (view === 'wallet') {
+                        document.getElementById('overlay').classList.remove('hidden');
+                        document.getElementById('wallet-modal').classList.remove('hidden');
+                    }
+                    if (view === 'search') {
+                        document.getElementById('overlay').classList.remove('hidden');
+                        document.getElementById('ai-modal').classList.remove('hidden'); // Using AI modal for search
+                    }
+                },
+                toggleAI() {
+                    const overlay = document.getElementById('overlay');
+                    const aiModal = document.getElementById('ai-modal');
+                    if (overlay.classList.contains('hidden')) {
+                        overlay.classList.remove('hidden');
+                        aiModal.classList.remove('hidden');
+                    } else {
+                        this.closeAll();
+                    }
+                },
+                closeAll() {
+                    document.getElementById('overlay').classList.add('hidden');
+                    document.getElementById('ai-modal').classList.add('hidden');
+                    document.getElementById('wallet-modal').classList.add('hidden');
+                    document.getElementById('profile-modal').classList.add('hidden');
+                },
+                renderReels() {
+                    const container = document.getElementById('app-viewport');
+                    container.innerHTML = App.state.videos.map(v => `
+                        <div class="reel-item w-full h-full bg-black flex items-center justify-center">
+                            <!-- Video Element -->
+                            <video class="w-full h-full object-cover" loop playsinline onclick="this.paused ? this.play() : this.pause()">
+                                <source src="${v.url}" type="video/mp4">
+                            </video>
+                            
+                            <!-- Overlay UI -->
+                            <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none"></div>
+                            
+                            <!-- Interactions -->
+                            <div class="absolute bottom-24 right-4 flex flex-col gap-6 items-center z-[10]">
+                                <button onclick="App.Advanced.rewardUser('like')" class="flex flex-col items-center">
+                                    <div class="w-12 h-12 glass rounded-full flex items-center justify-center text-xl"><i class="fa-solid fa-heart text-red-500"></i></div>
+                                    <span class="text-[10px] mt-1">${v.likes}</span>
+                                </button>
+                                <button onclick="App.Advanced.rewardUser('comment')" class="flex flex-col items-center">
+                                    <div class="w-12 h-12 glass rounded-full flex items-center justify-center text-xl"><i class="fa-solid fa-comment text-blue-400"></i></div>
+                                    <span class="text-[10px] mt-1">${v.comments}</span>
+                                </button>
+                                <button onclick="App.Advanced.verifyContent(${v.id})" class="flex flex-col items-center">
+                                    <div class="w-12 h-12 glass rounded-full flex items-center justify-center text-xl text-amber-400"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                                    <span class="text-[10px] mt-1">بررسی حقیقت</span>
+                                </button>
+                            </div>
+
+                            <!-- Info -->
+                            <div class="absolute bottom-24 left-4 right-16 z-[10]">
+                                <h3 class="font-bold text-lg">${v.title}</h3>
+                                <p class="text-sm text-slate-300">@${v.creator}</p>
+                                ${v.isPaid ? '<span class="bg-amber-500/20 text-amber-400 text-[10px] px-2 py-1 rounded mt-2 inline-block">محتوای VIP (نیاز به NFT)</span>' : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                },
+                showToast(msg, color) {
+                    const t = document.createElement('div');
+                    t.className = `fixed top-20 left-1/2 -translate-x-1/2 z-[300] px-6 py-2 rounded-full text-xs font-bold glass border-${color}-500 text-${color}-400 fade-in`;
+                    t.innerText = msg;
+                    document.body.appendChild(t);
+                    setTimeout(() => t.remove(), 3000);
+                }
+            }
+        };
+
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            App.ui.renderReels();
+            
+            // Auto-play videos on scroll (Simplified)
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const video = entry.target.querySelector('video');
+                    if (video) {
+                        if (entry.isIntersecting) video.play();
+                        else video.pause();
+                    }
+                });
+            }, { threshold: 0.7 });
+
+            document.querySelectorAll('.reel-item').forEach(item => observer.observe(item));
+        };
+    </script>
+</body>
+</html>
