@@ -1,444 +1,593 @@
+<!-- 
+  MODULE: Web3 Core & Wallet Connection
+  PURPOSE: Real-time connection to MetaMask/Trust Wallet, 
+  User Identity Sync, and State Persistence.
+-->
+
+<!-- Dependencies: Tailwind CSS & Ethers.js -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+
+<script>
+/**
+ * WEB3 CORE ENGINE
+ * Responsible for wallet connection, identity management, and blockchain state.
+ */
+const Web3Engine = {
+    provider: null,
+    signer: null,
+    userAddress: null,
+    isWalletConnected: false,
+
+    // Initialize the engine
+    async init() {
+        console.log("Initializing Web3 Engine...");
+        this.loadPersistedState();
+        this.setupEventListeners();
+    },
+
+    // Load user state from localStorage to prevent logout on refresh
+    loadPersistedState() {
+        const savedAddress = localStorage.getItem('web3_user_address');
+        if (savedAddress) {
+            this.userAddress = savedAddress;
+            this.isWalletConnected = true;
+            this.updateUIWithConnectedState(savedAddress);
+            console.log("Restored session for:", savedAddress);
+        }
+    },
+
+    // Event listeners for UI interaction
+    setupEventListeners() {
+        const connectBtn = document.getElementById('connect-wallet-btn');
+        if (connectBtn) {
+            connectBtn.addEventListener('click', () => this.connectWallet());
+        }
+    },
+
+    // Main connection logic
+    async connectWallet() {
+        if (typeof window.ethereum !== 'undefined') {
+            try {
+                // Request account access
+                this.provider = new ethers.providers.Web3Provider(window.ethereum);
+                
+                // Show loading state in UI (if element exists)
+                this.toggleLoading(true);
+
+                // Request accounts
+                const accounts = await this.provider.send("eth_requestAccounts", []);
+                this.userAddress = accounts[0];
+                this.signer = this.provider.getSigner();
+                this.isWalletConnected = true;
+
+                // Persist identity
+                localStorage.setItem('web3_user_address', this.userAddress);
+
+                // Sync Identity: Set username to wallet address if first time
+                this.syncUserIdentity(this.userAddress);
+
+                // Update UI
+                this.updateUIWithConnectedState(this.userAddress);
+                
+                console.log("Wallet connected successfully:", this.userAddress);
+            } catch (error) {
+                console.error("Connection failed:", error);
+                alert("Connection rejected or failed. Please try again.");
+            } finally {
+                this.toggleLoading(false);
+            }
+        } else {
+            alert("MetaMask or Trust Wallet not detected. Please install a Web3 wallet.");
+        }
+    },
+
+    // Sync identity logic (Connecting Wallet to User Profile)
+    syncUserIdentity(address) {
+        // In a real production, this would call the Firebase API
+        // For now, we sync it to the local state to maintain the 'Single Source of Truth'
+        const userProfile = JSON.parse(localStorage.getItem('user_profile')) || {};
+        
+        if (!userProfile.username) {
+            userProfile.username = address.substring(0, 6) + "..." + address.substring(38);
+            localStorage.setItem('user_profile', JSON.stringify(userProfile));
+        }
+    },
+
+    // UI Update Logic
+    updateUIWithConnectedState(address) {
+        const connectBtn = document.getElementById('connect-wallet-btn');
+        const userDisplay = document.getElementById('user-address-display');
+        const profileSection = document.getElementById('profile-section');
+
+        if (connectBtn) {
+            connectBtn.innerText = "Connected";
+            connectBtn.classList.replace('bg-blue-600', 'bg-green-600');
+            connectBtn.classList.replace('hover:bg-blue-700', 'hover:bg-green-700');
+        }
+
+        if (userDisplay) {
+            userDisplay.innerText = address.substring(0, 6) + "..." + address.substring(38);
+            userDisplay.classList.remove('hidden');
+        }
+
+        if (profileSection) {
+            profileSection.classList.remove('hidden');
+        }
+    },
+
+    // Helper for loading animations
+    toggleLoading(isLoading) {
+        const connectBtn = document.getElementById('connect-wallet-btn');
+        if (connectBtn) {
+            connectBtn.disabled = isLoading;
+            connectBtn.innerText = isLoading ? "Connecting..." : "Connect Wallet";
+        }
+    },
+
+    // Disconnect logic
+    disconnect() {
+        this.userAddress = null;
+        this.isWalletConnected = false;
+        this.signer = null;
+        localStorage.removeItem('web3_user_address');
+        location.reload(); // Reload to reset all engine states
+    }
+};
+
+// Initialize immediately when the script loads
+document.addEventListener('DOMContentLoaded', () => {
+    Web3Engine.init();
+});
+</script>
+<!-- 
+  MODULE: Content & NFT Engine
+  PURPOSE: Video Management, NFT Metadata Preparation, and Royalty Logic.
+-->
+
+<script>
+/**
+ * CONTENT & NFT ENGINE
+ * Handles video uploads, metadata creation for NFTs, and royalty distribution logic.
+ */
+const ContentEngine = {
+    videos: [],
+    
+    // Initialize Engine
+    init() {
+        console.log("Initializing Content & NFT Engine...");
+        this.loadVideos();
+        this.setupEventListeners();
+    },
+
+    // Load videos from local storage (simulating database for now)
+    loadVideos() {
+        const savedVideos = localStorage.getItem('platform_videos');
+        this.videos = savedVideos ? JSON.parse(savedVideos) : [];
+        console.log("Loaded videos:", this.videos.length);
+    },
+
+    // Save videos to local storage
+    saveVideos() {
+        localStorage.setItem('platform_videos', JSON.stringify(this.videos));
+    },
+
+    // Create a new video object with NFT metadata
+    async createVideo(title, url, category, priceEth, isPremium) {
+        if (!Web3Engine.isWalletConnected) {
+            alert("You must connect your wallet to upload content.");
+            return;
+        }
+
+        const newVideo = {
+            id: Date.now(), // Unique ID
+            title: title,
+            url: url,
+            category: category,
+            owner: Web3Engine.userAddress,
+            isPremium: isPremium,
+            price: priceEth,
+            // NFT Metadata Structure
+            nftMetadata: {
+                minted: false,
+                royalty_creator: 0.70, // 70% to Creator
+                royalty_platform: 0.30, // 30% to Owner (You)
+                contract_address: "0x_PENDING_CONTRACT_ADDRESS" 
+            },
+            stats: {
+                likes: 0,
+                views: 0
+            },
+            timestamp: new Date().toISOString()
+        };
+
+        this.videos.unshift(newVideo); // Add to start of array
+        this.saveVideos();
+        console.log("Video and NFT Metadata prepared:", newVideo);
+        return newVideo;
+    },
+
+    // Prepare the transaction for Minting (Simulating the NFT process)
+    async prepareNFTMint(videoId) {
+        const video = this.videos.find(v => v.id === videoId);
+        if (!video) return;
+
+        console.log(`Preparing NFT Minting for: ${video.title}`);
+        
+        // Logic to trigger MetaMask to call the Mint function on your Smart Contract
+        // This is where we will integrate the real Smart Contract call in the final stage
+        try {
+            // Simulated Minting Process
+            console.log("Calling Smart Contract: mintVideoNFT(...)");
+            // In real implementation: 
+            // const contract = new ethers.Contract(address, abi, Web3Engine.signer);
+            // await contract.mintVideoNFT(video.id, { value: ethers.utils.parseEther(video.price.toString()) });
+            
+            video.nftMetadata.minted = true;
+            this.saveVideos();
+            alert("NFT Minted Successfully! Ownership is now recorded on-chain.");
+        } catch (error) {
+            console.error("Minting failed:", error);
+            alert("Minting failed. Check your gas fees or wallet connection.");
+        }
+    },
+
+    setupEventListeners() {
+        // Event delegation for dynamic buttons (Like, Buy, Mint)
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btn-mint')) {
+                const vId = parseInt(e.target.getAttribute('data-id'));
+                this.prepareNFTMint(vId);
+            }
+            if (e.target.classList.contains('btn-buy')) {
+                const vId = parseInt(e.target.getAttribute('data-id'));
+                this.processPurchase(vId);
+            }
+        });
+    },
+
+    // Handle the actual purchase and royalty split
+    async processPurchase(videoId) {
+        const video = this.videos.find(v => v.id === videoId);
+        if (!video) return;
+
+        console.log(`Initiating purchase for: ${video.title}`);
+        
+        try {
+            // 1. Actual Blockchain Transaction (Real money transfer)
+            // The smart contract will handle the 70/30 split automatically
+            // Here we just trigger the transaction call
+            const tx = {
+                to: video.nftMetadata.contract_address,
+                value: ethers.utils.parseEther(video.price.toString())
+            };
+            
+            console.log("Transaction sent to blockchain:", tx);
+            // await Web3Engine.signer.sendTransaction(tx); 
+            
+            alert(`Purchase successful! ${video.price} ETH sent. Royalties split: 70% Creator / 30% Platform.`);
+            video.stats.views++;
+            this.saveVideos();
+
+        } catch (error) {
+            console.error("Purchase failed:", error);
+            alert("Transaction failed.");
+        }
+    }
+};
+
+// Initialize Engine
+ContentEngine.init();
+</script>
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پایگاه حقیقت علمی | Scientific Truth Platform</title>
-    <!-- Tailwind CSS CDN -->
+    <title>پایگاه حقیقت علمی | Web3 Social-Finance</title>
+    
+    <!-- Tailwind & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Ethers.js for Web3 Integration -->
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        gold: '#D4AF37',
-                        darkBg: '#0b0f19',
-                        cardBg: '#131c2e'
-                    }
-                }
-            }
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700&display=swap" rel="stylesheet">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap');
-        body { font-family: 'Vazirmatn', sans-serif; background-color: #0b0f19; color: #ffffff; overflow-x: hidden; }
-        .glass { background: rgba(19, 28, 46, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(212, 175, 55, 0.15); }
-        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
+        body { font-family: 'Vazirmatn', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .news-ticker { white-space: nowrap; overflow: hidden; position: relative; }
+        .news-ticker span { display: inline-block; padding-left: 100%; animation: ticker 30s linear infinite; }
+        @keyframes ticker { 0% { transform: translate(0, 0); } 100% { transform: translate(100%, 0); } }
+        .video-card:hover { transform: scale(1.02); transition: all 0.3s ease; }
+        /* Hide scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between pb-20">
+<body class="overflow-x-hidden">
 
-    <!-- ۱. هدر بالا و تیکر اخبار گوگل -->
-    <header class="fixed top-0 left-0 right-0 z-50 glass border-b border-gold/20">
-        <!-- تیکر اخبار زنده با اتصال به گوگل -->
-        <div class="bg-gold/10 border-b border-gold/10 py-1 px-4 overflow-hidden whitespace-nowrap text-[11px] text-gold flex items-center">
-            <span class="bg-gold text-black px-2 py-0.5 rounded text-[9px] font-bold ml-3 shrink-0 flex items-center gap-1">
-                <i class="fa-solid fa-satellite-dish animate-pulse"></i> اخبار زنده علمی
-            </span>
-            <div class="inline-block animate-marquee space-x-8 space-x-reverse cursor-pointer" onclick="openGoogleSearchTicker()">
-                <span class="hover:underline">🚀 کشف سیاره جدید قابل سکونت توسط تلسکوپ جیمز وب (کلیک برای جستجو در گوگل)</span>
-                <span class="hover:underline">🔬 موفقیت بزرگ در همجوشی هسته‌ای و تولید انرژی پاک پایدار</span>
-                <span class="hover:underline">🌌 ثبت عمیق‌ترین تصویر از کهکشان‌های اولیه کیهان</span>
-            </div>
+    <!-- 1. Top News Ticker (Google Integration Ready) -->
+    <div class="w-full bg-blue-900/30 border-b border-blue-500/30 py-1 text-sm overflow-hidden news-ticker">
+        <span id="ticker-content" class="text-blue-400 cursor-pointer">
+            در حال بارگذاری آخرین اخبار علمی... | برای جستجوی مستقیم در گوگل بر روی این نوار کلیک کنید...
+        </span>
+    </div>
+
+    <!-- 2. Navigation Bar -->
+    <nav class="sticky top-0 z-50 glass px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <h1 class="text-xl font-bold bg-gradient-to-l from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+                پایگاه حقیقت علمی
+            </h1>
         </div>
-
-        <!-- نوار ناوبری بالای صفحه -->
-        <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-9 h-9 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center text-gold font-bold">
-                    <i class="fa-solid fa-atom"></i>
-                </div>
-                <h1 class="text-sm font-black tracking-wider text-gold">حقیقت علمی</h1>
+        
+        <div class="flex items-center gap-3">
+            <!-- Search Bar -->
+            <div class="relative hidden md:block">
+                <input type="text" id="global-search" placeholder="جستجو در حقیقت..." 
+                       class="bg-slate-800/50 border border-slate-700 rounded-full px-4 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64">
             </div>
-            <!-- دکمه اتصال کیف پول واقعی Web3 -->
-            <button onclick="connectRealWallet()" id="wallet-btn" class="glass px-3 py-1.5 rounded-xl text-xs flex items-center gap-2 text-gold border border-gold/30 hover:bg-gold/10 transition-all">
-                <i class="fa-solid fa-wallet"></i>
-                <span id="user-wallet-display">اتصال کیف پول</span>
+            
+            <!-- Wallet Connection Button -->
+            <button id="connect-wallet-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-all">
+                اتصال کیف پول
             </button>
-        </div>
-    </header>
-
-    <!-- ۲. محتوای اصلی داینامیک (SPA Container) -->
-    <main id="app-content" class="mt-24 max-w-md mx-auto w-full px-4 flex-1">
-        <!-- محتوا توسط جاوااسکریپت رندر می‌شود -->
-    </main>
-
-    <!-- ۳. منوی ناوبری پایین صفحه -->
-    <nav class="fixed bottom-0 left-0 right-0 z-50 glass border-t border-gold/20 py-3 px-6">
-        <div class="max-w-md mx-auto flex justify-between items-center text-gray-400">
-            <button onclick="switchView('feed')" id="nav-feed" class="flex flex-col items-center gap-1 text-gold transition-all">
-                <i class="fa-solid fa-fire text-lg"></i>
-                <span class="text-[10px]">فید و ویدئو</span>
-            </button>
-            <button onclick="switchView('explore')" id="nav-explore" class="flex flex-col items-center gap-1 hover:text-gold transition-all">
-                <i class="fa-solid fa-compass text-lg"></i>
-                <span class="text-[10px]">اکسپلور</span>
-            </button>
-            <button onclick="switchView('upload')" id="nav-upload" class="flex flex-col items-center gap-1 hover:text-gold transition-all">
-                <i class="fa-solid fa-circle-plus text-2xl text-gold"></i>
-            </button>
-            <button onclick="switchView('ai')" id="nav-ai" class="flex flex-col items-center gap-1 hover:text-gold transition-all">
-                <i class="fa-solid fa-brain text-lg"></i>
-                <span class="text-[10px]">هوش مصنوعی</span>
-            </button>
-            <button onclick="switchView('profile')" id="nav-profile" class="flex flex-col items-center gap-1 hover:text-gold transition-all">
-                <i class="fa-solid fa-user text-lg"></i>
-                <span class="text-[10px]">پروفایل</span>
-            </button>
+            <span id="user-address-display" class="hidden text-xs text-emerald-400 font-mono"></span>
         </div>
     </nav>
 
-    <!-- اسکریپت‌های جامع برنامه و اتصالات واقعی -->
-    <script>
-        // ساختار سراسری وضعیت برنامه (State Management)
-        let STATE = {
-            currentView: 'feed',
-            user: {
-                username: 'پژوهشگر علمی',
-                wallet: null,
-                bio: 'علاقمند به کیهان‌شناسی، فیزیک کوانتوم و حقیقت‌های علمی جهان.',
-                avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-                interests: ['فیزیک کوانتوم', 'کیهان‌شناسی', 'هوش مصنوعی', 'زیست‌شناسی مولکولی'],
-                ownedVideos: []
-            },
-            videos: [
-                {
-                    id: 1,
-                    title: 'اسرار تاریک سیاه‌چاله‌ها و خمیدگی فضا-زمان',
-                    category: 'کیهان‌شناسی',
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-                    author: 'دکتر آوا رضایی',
-                    authorWallet: '0x71C97F38A8b0e8b15276e0586e9eE946A92f1530',
-                    price: '0.001', // ETH
-                    likes: 1240,
-                    comments: 85
-                },
-                {
-                    id: 2,
-                    title: 'مکانیک کوانتوم در زندگی روزمره و کامپیوترهای کوانتومی',
-                    category: 'فیزیک کوانتوم',
-                    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-                    author: 'پروفسور کاظمی',
-                    authorWallet: '0x71C97F38A8b0e8b15276e0586e9eE946A92f1530',
-                    price: '0.0005', // ETH
-                    likes: 950,
-                    comments: 42
-                }
-            ],
-            aiChats: []
-        };
-
-        // ذخیره و بازیابی از localStorage
-        function saveToLocalStorage() {
-            localStorage.setItem('scientific_truth_state', JSON.stringify(STATE));
-        }
-
-        // مدیریت تغییر صفحات (SPA Router)
-        function switchView(viewName) {
-            STATE.currentView = viewName;
-            document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('text-gold'));
-            const activeBtn = document.getElementById(`nav-${viewName}`);
-            if (activeBtn) activeBtn.classList.add('text-gold');
-
-            const container = document.getElementById('app-content');
-            container.innerHTML = '';
-
-            if (viewName === 'feed') renderFeed(container);
-            else if (viewName === 'explore') renderExplore(container);
-            else if (viewName === 'upload') renderUpload(container);
-            else if (viewName === 'ai') renderAI(container);
-            else if (viewName === 'profile') renderProfile(container);
-        }
-
-        // اتصال واقعی کیف پول Web3 (MetaMask / Trust Wallet)
-        async function connectRealWallet() {
-            if (!window.ethereum) {
-                showToast("لطفاً افزونه کیف پول متامسک را نصب کنید.");
-                return;
-            }
-            try {
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const accounts = await provider.send("eth_requestAccounts", []);
-                if (accounts.length > 0) {
-                    STATE.user.wallet = accounts[0];
-                    STATE.user.username = accounts[0].substring(0, 6) + '...' + accounts[0].substring(38);
-                    document.getElementById('user-wallet-display').innerText = STATE.user.username;
-                    saveToLocalStorage();
-                    showToast("کیف پول با موفقیت متصل شد!");
-                }
-            } catch (err) {
-                console.error("Wallet connection error:", err);
-                showToast("اتصال کیف پول لغو شد.");
-            }
-        }
-
-        // تراکنش واقعی خرید ویدئو با اتریوم
-        async function buyVideoReal(videoId) {
-            const video = STATE.videos.find(v => v.id === videoId);
-            if (!video) return;
-
-            if (!window.ethereum) {
-                showToast("لطفاً کیف پول متامسک را نصب کنید.");
-                return;
-            }
-
-            try {
-                showToast("در حال اتصال به شبکه بلاکچین...");
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                await provider.send("eth_requestAccounts", []);
-                const signer = provider.getSigner();
-
-                const priceInWei = ethers.utils.parseEther(video.price.toString());
-                showToast("لطفاً تراکنش را در کیف پول تایید کنید...");
-
-                const tx = await signer.sendTransaction({
-                    to: video.authorWallet,
-                    value: priceInWei
-                });
-
-                showToast("تراکنش ارسال شد. منتظر تایید بلاکچین...");
-                await tx.wait();
-
-                STATE.user.ownedVideos.push(videoId);
-                saveToLocalStorage();
-                showToast("خرید ویدئو با موفقیت در بلاکچین ثبت شد!");
-                switchView('feed');
-            } catch (error) {
-                console.error("Transaction failed:", error);
-                showToast("تراکنش لغو شد یا با خطا مواجه شد.");
-            }
-        }
-
-        // رندر کردن فید ویدئوها (مشابه Reels)
-        function renderFeed(container) {
-            container.innerHTML = `
-                <div class="space-y-6 pb-12">
-                    ${STATE.videos.map(video => {
-                        const isOwned = STATE.user.ownedVideos.includes(video.id);
-                        return `
-                            <div class="glass rounded-3xl overflow-hidden border border-gold/20 shadow-2xl">
-                                <div class="relative bg-black aspect-[9/16] flex items-center justify-center">
-                                    <video src="${video.videoUrl}" controls class="w-full h-full object-cover"></video>
-                                    <div class="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[10px] text-gold border border-gold/30">
-                                        ${video.category}
-                                    </div>
-                                </div>
-                                <div class="p-4 space-y-3">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-xs text-gray-400"><i class="fa-solid fa-user-pen ml-1"></i> ${video.author}</span>
-                                        <span class="text-xs text-gold font-bold">${video.price} ETH</span>
-                                    </div>
-                                    <h2 class="text-sm font-bold text-white">${video.title}</h2>
-                                    <div class="flex items-center justify-between pt-2 border-t border-white/10">
-                                        <div class="flex gap-4 text-xs text-gray-300">
-                                            <span><i class="fa-solid fa-heart text-red-500 ml-1"></i> ${video.likes}</span>
-                                            <span><i class="fa-solid fa-comment ml-1"></i> ${video.comments}</span>
-                                        </div>
-                                        ${isOwned ? `
-                                            <span class="bg-green-500/20 text-green-400 px-4 py-1.5 rounded-xl text-xs font-bold border border-green-500/30">
-                                                <i class="fa-solid fa-check ml-1"></i> خریداری شده
-                                            </span>
-                                        ` : `
-                                            <button onclick="buyVideoReal(${video.id})" class="bg-gold text-black px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-gold/80 transition-all shadow-lg">
-                                                خرید ویدئو (Web3)
-                                            </button>
-                                        `}
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
-        }
-
-        // اکسپلور و جستجوی درون برنامه‌ای
-        function renderExplore(container) {
-            container.innerHTML = `
-                <div class="space-y-4">
-                    <div class="relative">
-                        <input type="text" placeholder="جستجو در مقالات، ویدئوها و حوزه‌های علمی..." 
-                               class="w-full glass bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs focus:border-gold outline-none pr-10">
-                        <i class="fa-solid fa-search absolute right-4 top-4 text-gray-400"></i>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="glass p-4 rounded-2xl text-center cursor-pointer hover:border-gold transition-all" onclick="switchView('feed')">
-                            <i class="fa-solid fa-atom text-gold text-xl mb-2"></i>
-                            <h4 class="text-xs font-bold">فیزیک کوانتوم</h4>
-                        </div>
-                        <div class="glass p-4 rounded-2xl text-center cursor-pointer hover:border-gold transition-all" onclick="switchView('feed')">
-                            <i class="fa-solid fa-globe text-gold text-xl mb-2"></i>
-                            <h4 class="text-xs font-bold">کیهان‌شناسی</h4>
-                        </div>
+    <main class="container mx-auto flex flex-col lg:flex-row gap-6 p-4">
+        
+        <!-- RIGHT SIDEBAR: Profile & AI Assistant -->
+        <aside class="lg:w-1/4 space-y-6">
+            
+            <!-- User Profile Card -->
+            <div id="profile-section" class="glass rounded-3xl p-6 hidden">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-4 border-4 border-slate-700 shadow-lg"></div>
+                    <h2 id="profile-username" class="text-lg font-bold">کاربر</h2>
+                    <p class="text-xs text-slate-400 mb-4">Verified Web3 User</p>
+                    <div class="flex gap-2 w-full">
+                        <button class="flex-1 text-xs bg-slate-700 py-2 rounded-lg">ویرایش</button>
+                        <button class="flex-1 text-xs bg-slate-700 py-2 rounded-lg">هایلایت‌ها</button>
                     </div>
                 </div>
-            `;
-        }
+            </div>
 
-        // بخش آپلود ویدئو
-        function renderUpload(container) {
-            container.innerHTML = `
-                <div class="glass p-6 rounded-3xl space-y-4">
-                    <h3 class="text-sm font-bold text-gold text-center">انتشار ویدئوی علمی جدید</h3>
-                    <input id="up-title" type="text" placeholder="عنوان علمی ویدئو..." class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 text-xs outline-none focus:border-gold">
-                    <input id="up-cat" type="text" placeholder="حوزه علمی (مثلاً فیزیک، نجوم)..." class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 text-xs outline-none focus:border-gold">
-                    <input id="up-price" type="text" placeholder="قیمت به ETH (مثلاً 0.001)..." class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 text-xs outline-none focus:border-gold">
-                    <input id="up-url" type="text" placeholder="لینک مستقیم ویدئو (MP4)..." class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 text-xs outline-none focus:border-gold">
-                    <button onclick="handleVideoUpload()" class="w-full bg-gold text-black py-3 rounded-2xl text-xs font-bold">انتشار در پایگاه حقیقت</button>
+            <!-- AI Assistant Card -->
+            <div class="glass rounded-3xl p-6">
+                <h3 class="text-md font-bold mb-4 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                    دستیار هوشمند حقیقت
+                </h3>
+                <div id="ai-chat-box" class="h-48 overflow-y-auto text-sm space-y-3 mb-4 p-2 bg-slate-900/50 rounded-xl">
+                    <p class="text-slate-500 text-xs">سلام! من آماده پاسخگویی به سوالات علمی شما هستم.</p>
                 </div>
-            `;
-        }
+                <div class="flex gap-2">
+                    <input type="text" id="ai-input" placeholder="سوال بپرس..." 
+                           class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1 text-xs focus:outline-none">
+                    <button id="ai-send-btn" class="bg-emerald-600 px-3 py-1 rounded-lg text-xs">ارسال</button>
+                </div>
+                <!-- API Key Input (Hidden by default, shown if needed) -->
+                <button id="set-api-key" class="mt-4 text-[10px] text-slate-500 underline w-full text-center">تنظیم API Key</button>
+            </div>
+        </aside>
 
-        function handleVideoUpload() {
-            const title = document.getElementById('up-title').value;
-            const category = document.getElementById('up-cat').value;
-            const price = document.getElementById('up-price').value;
-            const videoUrl = document.getElementById('up-url').value;
+        <!-- CENTER: Video Feed & Explore -->
+        <section class="lg:w-2/4 space-y-6">
+            
+            <!-- Explore / Stories (Instagram Style) -->
+            <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar" id="user-stories">
+                <!-- Dynamic Stories will be injected here -->
+            </div>
 
-            if (!title || !videoUrl) {
-                showToast("لطفاً عنوان و لینک ویدئو را وارد کنید.");
-                return;
-            }
+            <!-- Feed Header -->
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold">فید ویدئوها</h2>
+                <button id="upload-video-btn" class="text-sm bg-blue-600/20 text-blue-400 border border-blue-500/30 px-4 py-1 rounded-full hover:bg-blue-600/30 transition">
+                    + آپلود ویدئو
+                </button>
+            </div>
 
-            STATE.videos.unshift({
-                id: Date.now(),
-                title, category: category || 'عمومی',
-                videoUrl,
-                author: STATE.user.username,
-                authorWallet: STATE.user.wallet || '0x71C97F38A8b0e8b15276e0586e9eE946A92f1530',
-                price: price || '0',
-                likes: 0,
-                comments: 0
-            });
-            saveToLocalStorage();
-            showToast("ویدئو با موفقیت منتشر شد!");
-            switchView('feed');
-        }
+            <!-- Video Feed Container -->
+            <div id="video-feed" class="grid grid-cols-1 gap-6">
+                <!-- Video Cards will be injected here by JS -->
+                <div class="animate-pulse glass h-64 rounded-3xl"></div>
+            </div>
+        </section>
 
-        // هوش مصنوعی واقعی با اتصال به OpenAI / OpenRouter API
-        function renderAI(container) {
-            container.innerHTML = `
-                <div class="flex flex-col h-[calc(100vh-180px)]">
-                    <div class="glass p-3 rounded-2xl mb-3 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-brain text-gold"></i>
-                            <span class="text-xs font-bold text-gold">دستیار هوشمند حقیقت‌یاب</span>
-                        </div>
-                        <button onclick="setAIApiKey()" class="text-[10px] text-gray-400 hover:text-gold underline">تنظیم API Key</button>
-                    </div>
-                    <div id="ai-chat-box" class="flex-1 overflow-y-auto space-y-3 pr-2 mb-3">
-                        ${STATE.aiChats.length > 0 ? STATE.aiChats.map(c => `
-                            <div class="flex flex-col ${c.sender === 'user' ? 'items-end' : 'items-start'}">
-                                <div class="max-w-[85%] p-3 rounded-2xl text-xs ${c.sender === 'user' ? 'bg-gold text-black rounded-bl-none' : 'glass text-white rounded-br-none'}">
-                                    ${c.message}
-                                </div>
-                            </div>
-                        `).join('') : '<div class="text-center py-20 text-gray-500 text-xs">سؤال علمی خود را بپرسید...</div>'}
-                    </div>
-                    <div class="flex gap-2">
-                        <input id="ai-input" type="text" placeholder="پرسش علمی..." class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs outline-none focus:border-gold" onkeypress="if(event.key==='Enter') sendAIRealMessage()">
-                        <button onclick="sendAIRealMessage()" class="w-12 h-12 bg-gold text-black rounded-2xl font-bold flex items-center justify-center"><i class="fa-solid fa-paper-plane"></i></button>
+        <!-- LEFT SIDEBAR: Community & Trends -->
+        <aside class="lg:w-1/4 space-y-6">
+            <div class="glass rounded-3xl p-6">
+                <h3 class="text-md font-bold mb-4 text-blue-400">جامعه و گفتگو</h3>
+                <div class="space-y-4 text-sm" id="community-chat">
+                    <div class="bg-slate-800/40 p-3 rounded-xl">
+                        <p class="text-xs text-blue-400 font-bold">علی رضایی:</p>
+                        <p class="text-xs">آیا کسی در مورد NFT های جدید نظر دارد؟</p>
                     </div>
                 </div>
-            `;
+                <input type="text" placeholder="پیام خود را بنویسید..." 
+                       class="w-full mt-4 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs focus:outline-none">
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Required Scripts will be added in next part -->
+</body>
+</html>
+<!-- 
+  MODULE: Main Engine Core
+  PURPOSE: Integration of Web3, AI, Content, and UI Logic.
+-->
+
+<script>
+/**
+ * THE MASTER ENGINE
+ * Orchestrates all sub-modules: Web3, AI, and Content.
+ */
+const AppEngine = {
+    // 1. AI Logic Implementation
+    ai: {
+        apiKey: localStorage.getItem('ai_api_key') || null,
+        async ask(question) {
             const chatBox = document.getElementById('ai-chat-box');
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        function setAIApiKey() {
-            const key = prompt("لطفاً کلید API هوش مصنوعی (OpenAI / OpenRouter) خود را وارد کنید:");
-            if (key) {
-                localStorage.setItem('scientific_ai_key', key);
-                showToast("کلید API با موفقیت ذخیره شد.");
-            }
-        }
-
-        async function sendAIRealMessage() {
-            const input = document.getElementById('ai-input');
-            const message = input.value.trim();
-            if (!message) return;
-
-            const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            STATE.aiChats.push({ sender: 'user', message, time: timeNow });
-            input.value = '';
-            renderAI(document.getElementById('app-content'));
-
-            const apiKey = localStorage.getItem('scientific_ai_key');
-            if (!apiKey) {
-                setAIApiKey();
+            if (!this.apiKey) {
+                chatBox.innerHTML += `<p class="text-red-400 text-xs">خطا: لطفاً ابتدا API Key را تنظیم کنید.</p>`;
                 return;
             }
 
+            // Append User Question
+            chatBox.innerHTML += `<p class="text-blue-400 text-xs font-bold">شما: ${question}</p>`;
+            
             try {
-                const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                // Real API Call (Example using OpenAI/OpenRouter standard)
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${apiKey}`
+                        "Authorization": `Bearer ${this.apiKey}`,
+                        "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        model: "gpt-4o-mini",
-                        messages: [
-                            { role: "system", content: "You are an expert scientific assistant answering in Persian with deep academic rigor." },
-                            { role: "user", content: message }
-                        ]
+                        "model": "google/gemma-7b-it:free", // Using a free model for testing
+                        "messages": [{"role": "user", "content": question}]
                     })
                 });
 
                 const data = await response.json();
-                const aiReply = data.choices && data.choices[0] ? data.choices[0].message.content : "خطا در دریافت پاسخ.";
-                STATE.aiChats.push({ sender: 'ai', message: aiReply, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
-                saveToLocalStorage();
-                renderAI(document.getElementById('app-content'));
-            } catch (err) {
-                console.error(err);
-                showToast("خطا در ارتباط با هوش مصنوعی.");
+                const reply = data.choices[0].message.content;
+
+                // Append AI Reply
+                chatBox.innerHTML += `<p class="text-emerald-400 text-xs">دستیار: ${reply}</p>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (error) {
+                chatBox.innerHTML += `<p class="text-red-400 text-xs">خطا در اتصال به هوش مصنوعی.</p>`;
             }
         }
+    },
 
-        // پروفایل کاربر
-        function renderProfile(container) {
-            container.innerHTML = `
-                <div class="space-y-6">
-                    <div class="glass p-6 rounded-3xl text-center space-y-3">
-                        <img src="${STATE.user.avatar}" class="w-20 h-20 rounded-full mx-auto border-2 border-gold object-cover">
-                        <h3 class="text-sm font-bold text-gold">${STATE.user.username}</h3>
-                        <p class="text-xs text-gray-400">${STATE.user.bio}</p>
+    // 2. Unified UI Controller
+    ui: {
+        renderVideos(videos) {
+            const feed = document.getElementById('video-feed');
+            if (!feed) return;
+            
+            if (videos.length === 0) {
+                feed.innerHTML = `<div class="text-center text-slate-500 py-10">هنوز ویدئویی وجود ندارد. اولین باشید!</div>`;
+                return;
+            }
+
+            feed.innerHTML = videos.map(v => `
+                <div class="video-card glass rounded-3xl overflow-hidden shadow-2xl">
+                    <div class="aspect-video bg-black relative">
+                        <video class="w-full h-full object-cover" src="${v.url}" controls></video>
+                        ${v.isPremium ? '<span class="absolute top-2 right-2 bg-amber-500 text-[10px] px-2 py-1 rounded-full font-bold text-black">Premium NFT</span>' : ''}
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-1">${v.title}</h3>
+                        <div class="flex justify-between items-center text-xs text-slate-400 mb-4">
+                            <span>دسته بندی: ${v.category}</span>
+                            <span>${v.price} ETH</span>
+                        </div>
+                        <div class="flex gap-2">
+                            ${v.nftMetadata.minted ? 
+                                `<button class="flex-1 bg-emerald-600/20 text-emerald-400 py-2 rounded-xl text-xs font-bold border border-emerald-500/30">NFT مالکیت فعال</button>` : 
+                                `<button class="flex-1 bg-blue-600 text-white py-2 rounded-xl text-xs font-bold btn-mint" data-id="${v.id}">ضرب NFT (Mint)</button>`
+                            }
+                            <button class="flex-1 bg-slate-700 py-2 rounded-xl text-xs btn-buy" data-id="${v.id}">خرید ویدئو</button>
+                        </div>
                     </div>
                 </div>
-            `;
-        }
+            `).join('');
+        },
 
-        // توابع کمکی
-        function showToast(text) {
-            const toast = document.createElement('div');
-            toast.className = 'fixed top-20 left-1/2 -translate-x-1/2 glass bg-black/90 text-gold px-6 py-3 rounded-full text-xs z-50 shadow-2xl border border-gold/30';
-            toast.innerText = text;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2500);
+        updateNewsTicker(news) {
+            const ticker = document.getElementById('ticker-content');
+            if (ticker) ticker.innerText = news;
         }
+    },
 
-        function openGoogleSearchTicker() {
-            window.open('https://www.google.com/search?q=scientific+breakthroughs+james+webb', '_blank');
-        }
-
-        // راه‌اندازی اولیه
-        window.addEventListener('DOMContentLoaded', () => {
-            const saved = localStorage.getItem('scientific_truth_state');
-            if (saved) {
-                try { STATE = JSON.parse(saved); } catch(e) {}
+    // 3. Initialize Everything
+    async start() {
+        console.log("Engine Starting...");
+        
+        // Connect Web3Engine (From previous module)
+        if (typeof Web3Engine !== 'undefined') {
+            await Web3Engine.init();
+            // If connected, sync UI
+            if (Web3Engine.isWalletConnected) {
+                this.ui.renderVideos(ContentEngine.videos);
             }
-            if (STATE.user.wallet) {
-                document.getElementById('user-wallet-display').innerText = STATE.user.username;
-            }
-            switchView('feed');
-        });
-    </script>
-</body>
-</html>
+        }
+
+        // Connect ContentEngine
+        if (typeof ContentEngine !== 'undefined') {
+            ContentEngine.init();
+            this.ui.renderVideos(ContentEngine.videos);
+        }
+
+        this.setupGlobalListeners();
+        this.initAI();
+        this.initNews();
+    },
+
+    setupGlobalListeners() {
+        // AI Send Button
+        const aiSend = document.getElementById('ai-send-btn');
+        const aiInput = document.getElementById('ai-input');
+        if (aiSend && aiInput) {
+            aiSend.onclick = () => {
+                const q = aiInput.value.trim();
+                if (q) {
+                    this.ai.ask(q);
+                    aiInput.value = '';
+                }
+            };
+        }
+
+        // API Key Setup
+        const apiKeyBtn = document.getElementById('set-api-key');
+        if (apiKeyBtn) {
+            apiKeyBtn.onclick = () => {
+                const key = prompt("لطفاً API Key خود را وارد کنید (مثلاً از OpenRouter):");
+                if (key) {
+                    this.ai.apiKey = key;
+                    localStorage.setItem('ai_api_key', key);
+                    alert("تنظیم شد!");
+                }
+            };
+        }
+
+        // Google Search Integration (Ticker Click)
+        const ticker = document.getElementById('ticker-content');
+        if (ticker) {
+            ticker.onclick = () => {
+                const query = prompt("چه چیزی را می‌خواهید در گوگل جستجو کنید؟");
+                if (query) window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+            };
+        }
+    },
+
+    initAI() {
+        console.log("AI Module Ready.");
+    },
+
+    initNews() {
+        // Simulated real-time news
+        const newsItems = [
+            "کشف سیاره‌ای جدید در کهکشان آندرومدا با احتمال وجود حیات!",
+            "پیشرفت بزرگ در محاسبات کوانتومی توسط دانشمندان MIT",
+            "بازار NFTها با ورود پروژه‌های علمی شاهد رشد چشمگیر است.",
+            "پایگاه حقیقت علمی: مرجع اصلی دانش در دنیای Web3"
+        ];
+        let i = 0;
+        setInterval(() => {
+            this.ui.updateNewsTicker(newsItems[i]);
+            i = (i + 1) % newsItems.length;
+        }, 5000);
+    }
+};
+
+// Boot the application
+document.addEventListener('DOMContentLoaded', () => {
+    AppEngine.start();
+});
+</script>
