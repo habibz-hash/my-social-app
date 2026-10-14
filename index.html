@@ -1,375 +1,84 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پایگاه حقیقت علمی | Web3 & AI Platform</title>
-    
-    <!-- External Assets -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;500;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+/**
+ * ADVANCED UPGRADE MODULES
+ * 1. Science-to-Earn Engine
+ * 2. AI Fact-Checker
+ * 3. Web3 Asset Dashboard
+ */
 
-    <style>
-        :root {
-            --bg-dark: #050505;
-            --card-glass: rgba(255, 255, 255, 0.03);
-            --accent-blue: #00d2ff;
-            --accent-purple: #9d50bb;
-        }
+App.Advanced = {
+    stats: {
+        tokens: 0,
+        truthScore: 98,
+        nftOwned: 0
+    },
 
-        body {
-            font-family: 'Vazirmatn', sans-serif;
-            background-color: var(--bg-dark);
-            color: #ffffff;
-            margin: 0;
-            overflow-x: hidden;
-        }
-
-        /* Instagram-style Reels Feed */
-        .reels-container {
-            scroll-snap-type: y mandatory;
-            overflow-y: scroll;
-            height: calc(100vh - 64px);
-            scrollbar-width: none;
-        }
-        .reels-container::-webkit-scrollbar { display: none; }
-
-        .reel-item {
-            scroll-snap-align: start;
-            height: calc(100vh - 64px);
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .video-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.9));
-            padding: 40px 20px 20px;
-        }
-
-        /* Glassmorphism UI */
-        .glass {
-            background: var(--card-glass);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* Floating UI Elements */
-        .side-action-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            position: absolute;
-            right: 15px;
-            bottom: 100px;
-            z-index: 10;
-        }
-
-        .action-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .action-icon:hover { background: var(--accent-blue); transform: scale(1.1); }
-
-        /* News Ticker */
-        #ticker {
-            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            white-space: nowrap;
-            padding: 5px 0;
-            font-size: 0.8rem;
-        }
-
-        /* Custom Scrollbar for Sidebar */
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-
-        /* Animations */
-        @keyframes pulse-blue {
-            0% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(0, 210, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0); }
-        }
-        .wallet-connected { animation: pulse-blue 2s infinite; }
-    </style>
-</head>
-<body>
-
-    <!-- 1. Top News Ticker (Google Search Ready) -->
-    <div id="ticker-wrapper" class="fixed top-0 w-full z-[100] cursor-pointer overflow-hidden h-8 flex items-center">
-        <div id="ticker-text" class="inline-block animate-marquee whitespace-nowrap text-black font-bold text-sm">
-            در حال دریافت اخبار علمی از گوگل... | کلیک کنید برای جستجوی مستقیم | ورود به عصر جدید حقیقت علمی با Web3
-        </div>
-    </div>
-
-    <!-- 2. Navigation Bar -->
-    <nav class="fixed top-8 w-full z-[90] px-4">
-        <div class="max-w-6xl mx-auto glass rounded-full px-6 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <div class="text-xl font-black bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-                    حقیقت علمی
-                </div>
-            </div>
-
-            <div class="hidden md:flex items-center gap-6 text-sm font-medium">
-                <a href="#" class="hover:text-blue-400">خانه</a>
-                <a href="#" class="hover:text-blue-400">کاوش</a>
-                <a href="#" class="hover:text-blue-400">NFTها</a>
-                <a href="#" class="hover:text-blue-400">جامعه</a>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <button id="wallet-btn" class="bg-blue-600 hover:bg-blue-500 px-5 py-1.5 rounded-full text-sm transition-all font-bold">
-                    <i class="fa-solid fa-wallet ml-2"></i> اتصال کیف پول
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <!-- 3. Main Content Layout -->
-    <div class="flex pt-24 h-screen w-full overflow-hidden">
+    // --- 1. Science-to-Earn Logic ---
+    async rewardUser(actionType) {
+        // در دنیای واقعی، این مقدار در بلاکچین ثبت می‌شود
+        const rewardAmount = actionType === 'comment' ? 0.1 : 0.05;
+        this.stats.tokens += rewardAmount;
         
-        <!-- LEFT SIDEBAR: Profile & AI (Desktop Only) -->
-        <aside class="hidden lg:flex flex-col w-80 p-4 gap-4 overflow-y-auto custom-scroll">
-            <!-- Profile Card -->
-            <div class="glass rounded-3xl p-5 text-center">
-                <div class="w-20 h-20 rounded-full mx-auto mb-3 border-2 border-blue-500 p-1">
-                    <img id="user-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="rounded-full bg-slate-800" alt="Profile">
-                </div>
-                <h2 id="display-username" class="font-bold text-lg">مهمان</h2>
-                <p id="display-addr" class="text-[10px] text-slate-500 font-mono truncate">Not Connected</p>
-                <div class="flex justify-center gap-2 mt-4">
-                    <button class="p-2 hover:bg-white/10 rounded-xl"><i class="fa-solid fa-gear"></i></button>
-                    <button class="p-2 hover:bg-white/10 rounded-xl"><i class="fa-solid fa-star"></i></button>
-                </div>
-            </div>
+        // نمایش اعلان شناور (Toast Notification)
+        this.showToast(`+${rewardAmount} $SCIENCE Token earned!`, 'emerald');
+        console.log(`Earned: ${rewardAmount} tokens via ${actionType}`);
+    },
 
-            <!-- AI Assistant (Operational) -->
-            <div class="glass rounded-3xl p-5 flex-1 flex flex-col">
-                <h3 class="font-bold mb-3 flex items-center gap-2 text-emerald-400">
-                    <i class="fa-solid fa-robot"></i> دستیار هوشمند
-                </h3>
-                <div id="ai-messages" class="flex-1 text-xs space-y-3 overflow-y-auto custom-scroll mb-3 pr-2">
-                    <div class="bg-white/5 p-3 rounded-2xl rounded-tr-none text-slate-300">
-                        سلام! من هوش مصنوعی پلتفرم هستم. هر سوال علمی داری از من بپرس.
+    // --- 2. AI Fact-Checker Logic ---
+    async verifyContent(videoId) {
+        // نشان دادن حالت در حال بارگذاری
+        this.showToast("هوش مصنوعی در حال تحلیل حقیقت...", "blue");
+        
+        // شبیه‌سازی پردازش سنگین هوش مصنوعی
+        await new Promise(resolve => setTimeout(resolve, 2500));
+        
+        const score = Math.floor(Math.random() * (100 - 70 + 1) + 70); // همیشه بین ۷۰ تا ۱۰۰ برای تست
+        this.showToast(`شاخص حقیقت این محتوا: ${score}%`, score > 80 ? 'emerald' : 'amber');
+        return score;
+    },
+
+    // --- 3. Web3 Dashboard Logic ---
+    updateDashboard() {
+        const dashboard = document.getElementById('user-dashboard-ui');
+        if (dashboard) {
+            dashboard.innerHTML = `
+                <div class="grid grid-cols-2 gap-2 text-[10px]">
+                    <div class="bg-white/5 p-2 rounded-lg">
+                        <p class="text-slate-400">توکن‌ها</p>
+                        <p class="text-emerald-400 font-bold">${this.stats.tokens.toFixed(2)} $SCI</p>
+                    </div>
+                    <div class="bg-white/5 p-2 rounded-lg">
+                        <p class="text-slate-400">امتیاز اعتبار</p>
+                        <p class="text-blue-400 font-bold">${this.stats.truthScore}</p>
                     </div>
                 </div>
-                <div class="relative">
-                    <input id="ai-input" type="text" placeholder="سوال علمی..." 
-                           class="w-full bg-black/40 border border-white/10 rounded-2xl py-2 px-3 text-xs focus:outline-none focus:border-blue-500">
-                    <button id="ai-send" class="absolute left-2 top-1.5 text-blue-500 hover:text-blue-400">
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-        </aside>
+            `;
+        }
+    },
 
-        <!-- CENTER: Reels Feed (Main Interaction) -->
-        <main class="flex-1 relative overflow-hidden">
-            <div id="reels-wrapper" class="reels-container">
-                <!-- Videos will be injected here by JS -->
-            </div>
-        </main>
+    // Utility: Toast Notification System
+    showToast(message, color) {
+        const toast = document.createElement('div');
+        toast.className = `fixed top-24 left-1/2 -translate-x-1/2 z-[200] px-6 py-2 rounded-full text-xs font-bold glass border-${color}-500 text-${color}-400 animate-bounce`;
+        toast.innerText = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+};
 
-        <!-- RIGHT SIDEBAR: Trending & Community -->
-        <aside class="hidden xl:flex flex-col w-80 p-4 gap-4 overflow-y-auto custom-scroll">
-            <div class="glass rounded-3xl p-5">
-                <h3 class="font-bold mb-4 text-blue-400">ترندهای علمی</h3>
-                <div class="space-y-4">
-                    <div class="flex items-center gap-3">
-                        <span class="text-xl font-bold text-slate-700">#1</span>
-                        <span class="text-sm">فیزیک کوانتومی</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="text-xl font-bold text-slate-700">#2</span>
-                        <span class="text-sm">فضا و کهکشان‌ها</span>
-                    </div>
-                </div>
-            </div>
+// Integrate Advanced Module into Main App
+// اضافه کردن دکمه‌های جدید به هر ویدئو در زمان رندر شدن
+const originalRender = App.ui.renderVideos.bind(App.ui);
+App.ui.renderVideos = function(videos) {
+    // ما در اینجا متد اصلی را فراخوانی می‌کنیم اما دکمه‌های جدید را تزریق می‌کنیم
+    originalRender(videos);
+    
+    // اضافه کردن دکمه Fact-Checker به تمام ویدئوها پس از رندر
+    const checkButtons = document.querySelectorAll('.btn-fact-check'); 
+    // نکته: در کد اصلی باید کلاس btn-fact-check را به دکمه‌ها اضافه کرده باشیم
+};
 
-            <div class="glass rounded-3xl p-5 flex-1">
-                <h3 class="font-bold mb-4">گفتگوی آنلاین</h3>
-                <div id="community-feed" class="text-xs space-y-4">
-                    <!-- Live Chat Messages -->
-                </div>
-            </div>
-        </aside>
-
-    </div>
-
-    <!-- 4. Logic Layer (The Brain) -->
-    <script>
-        /**
-         * CORE ENGINE: Handles Web3, AI, and Content
-         */
-        const App = {
-            user: {
-                address: null,
-                isPremium: false,
-                interests: []
-            },
-            
-            // Real Content Data (Can be fetched from API)
-            content: [
-                { id: 1, title: "رازهای سیاهچاله‌ها", url: "https://www.w3schools.com/html/mov_bbb.mp4", user: "Dr. Einstein", category: "فیزیک", price: "0.05", isPremium: true, nftMetadata: { minted: false } },
-                { id: 2, title: "حیات در مریخ؟", url: "https://www.w3schools.com/html/mov_bbb.mp4", user: "SpaceX_Fan", category: "نجوم", price: "0.01", isPremium: false, nftMetadata: { minted: false } },
-                { id: 3, title: "هوش مصنوعی و آینده", url: "https://www.w3schools.com/html/mov_bbb.mp4", user: "TechGuru", category: "تکنولوژی", price: "0.02", isPremium: true, nftMetadata: { minted: true } }
-            ],
-
-            async init() {
-                this.setupWeb3();
-                this.setupAI();
-                this.renderReels();
-                this.setupTicker();
-                this.setupCommunity();
-                console.log("🚀 Platform Online & Ready.");
-            },
-
-            // --- WEB3 MODULE ---
-            async setupWeb3() {
-                const walletBtn = document.getElementById('wallet-btn');
-                
-                walletBtn.onclick = async () => {
-                    if (window.ethereum) {
-                        try {
-                            const provider = new ethers.providers.Web3Provider(window.ethereum);
-                            await provider.send("eth_requestAccounts", []);
-                            const signer = provider.getSigner();
-                            this.user.address = await signer.getAddress();
-                            
-                            // UI Update
-                            walletBtn.innerHTML = `<i class="fa-solid fa-check ml-2"></i> متصل`;
-                            walletBtn.classList.add('wallet-connected', 'bg-emerald-600');
-                            document.getElementById('display-addr').innerText = this.user.address;
-                            document.getElementById('display-username').innerText = this.user.address.substring(0,6) + "...";
-                            
-                            console.log("Connected to:", this.user.address);
-                        } catch (err) {
-                            console.error("Connection failed", err);
-                        }
-                    } else {
-                        alert("لطفاً MetaMask را نصب کنید!");
-                    }
-                };
-            },
-
-            // --- AI MODULE (OPERATIONAL) ---
-            setupAI() {
-                const aiInput = document.getElementById('ai-input');
-                const aiSend = document.getElementById('ai-send-btn');
-                const aiMessages = document.getElementById('ai-messages');
-
-                aiSend.onclick = async () => {
-                    const msg = aiInput.value.trim();
-                    if (!msg) return;
-
-                    // User message
-                    aiMessages.innerHTML += `<div class="bg-blue-600/20 p-3 rounded-2xl rounded-tl-none text-white self-end text-xs">${msg}</div>`;
-                    aiInput.value = '';
-                    aiMessages.scrollTop = aiMessages.scrollHeight;
-
-                    // Simulated AI Response (Replace with actual fetch if API Key is provided)
-                    setTimeout(() => {
-                        aiMessages.innerHTML += `<div class="bg-white/5 p-3 rounded-2xl rounded-tr-none text-slate-300 text-xs">در حال تحلیل علمی درخواست شما... [پاسخ واقعی با API Key فعال می‌شود]</div>`;
-                        aiMessages.scrollTop = aiMessages.scrollHeight;
-                    }, 1000);
-                };
-            },
-
-            // --- CONTENT & REELS MODULE ---
-            renderReels() {
-                const container = document.getElementById('reels-wrapper');
-                container.innerHTML = this.content.map(video => `
-                    <div class="reel-item">
-                        <video class="h-full w-full object-cover" src="${video.url}" loop onclick="this.paused ? this.play() : this.pause()"></video>
-                        
-                        <!-- Instagram-style Side Buttons -->
-                        <div class="side-action-btn">
-                            <div class="action-icon text-red-500"><i class="fa-solid fa-heart"></i></div>
-                            <div class="action-icon"><i class="fa-solid fa-comment"></i></div>
-                            <div class="action-icon"><i class="fa-solid fa-share"></i></div>
-                            <div class="action-icon"><i class="fa-solid fa-bookmark"></i></div>
-                        </div>
-
-                        <!-- Video Info Overlay -->
-                        <div class="video-overlay w-full max-w-md">
-                            <div class="flex items-center gap-3 mb-3">
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${video.user}" class="w-10 h-10 rounded-full border border-white/20">
-                                <div>
-                                    <h4 class="font-bold text-sm">${video.user}</h4>
-                                    <p class="text-[10px] text-slate-400">@${video.user.toLowerCase()}</p>
-                                </div>
-                            </div>
-                            <p class="text-sm mb-4">${video.title} | <span class="text-blue-400">${video.category}</span></p>
-                            
-                            <div class="flex gap-3">
-                                <button onclick="App.buyVideo(${video.id})" class="flex-1 bg-white text-black py-2 rounded-xl font-bold text-sm">
-                                    خرید با ${video.price} ETH
-                                </button>
-                                ${video.nftMetadata.minted ? 
-                                    `<button class="bg-emerald-500/20 text-emerald-400 px-4 rounded-xl border border-emerald-500/30"><i class="fa-solid fa-certificate"></i></button>` :
-                                    `<button onclick="App.mintNFT(${video.id})" class="bg-purple-600 px-4 rounded-xl text-sm">Mint NFT</button>`
-                                }
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            },
-
-            buyVideo(id) {
-                if(!this.user.address) return alert("لطفاً ابتدا کیف پول خود را متصل کنید!");
-                alert(`درخواست تراکنش برای ویدئو #${id} ارسال شد. (در حالت عملیاتی، متد ethers.js صدا زده می‌شود)`);
-            },
-
-            mintNFT(id) {
-                alert(`در حال آماده‌سازی برای ضرب NFT ویدئو #${id} با تقسیم سود ۷۰/۳۰...`);
-            },
-
-            // --- UTILITY MODULES ---
-            setupTicker() {
-                const tickerText = document.getElementById('ticker-text');
-                const tickerWrapper = document.getElementById('ticker-wrapper');
-                
-                tickerWrapper.onclick = () => {
-                    window.open('https://www.google.com/search?q=science+news', '_blank');
-                };
-            },
-
-            setupCommunity() {
-                const feed = document.getElementById('community-feed');
-                const users = ['Sina_Sci', 'Ali_Web3', 'Zahra_AI'];
-                const msgs = ['سلام به همه!', 'آیا این NFT معتبر است؟', 'هوش مصنوعی واقعا هیجان‌انگیز است.'];
-
-                setInterval(() => {
-                    const user = users[Math.floor(Math.random() * users.length)];
-                    const msg = msgs[Math.floor(Math.random() * msgs.length)];
-                    feed.innerHTML = `
-                        <div class="bg-white/5 p-2 rounded-lg animate-pulse">
-                            <span class="text-blue-400 font-bold">${user}:</span> ${msg}
-                        </div>
-                    ` + feed.innerHTML;
-                    if (feed.children.length > 10) feed.lastElementChild.remove();
-                }, 4000);
-            }
-        };
-
-        // Run Application
-        window.onload = () => App.init();
-    </script>
-</body>
-</html>
+// اضافه کردن دکمه‌های جدید در بخش renderReels (در بخش اصلی کد قبلی، این تغییر را اعمال کنید)
+// در متد renderReels کد قبلی، این دکمه را داخل حلقه map اضافه کنید:
+// <button onclick="App.Advanced.verifyContent(${video.id})" class="bg-amber-500/20 text-amber-400 px-3 py-1 rounded-lg text-[10px] mt-2">
+//    <i class="fa-solid fa-magnifying-glass-chart ml-1"></i> بررسی حقیقت توسط AI
+// </button>
