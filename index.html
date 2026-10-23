@@ -1,199 +1,129 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>پایگاه حقیقت علمی | Archive Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700;900&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: { extend: { fontFamily: { sans: ['Vazirmatn', 'sans-serif'] }, colors: { darkBg: '#020617' }}}
-        }
-    </script>
-
-    <style>
-        body { background-color: #020617; color: white; overflow: hidden; font-family: 'Vazirmatn', sans-serif; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .mesh-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 20% 30%, #1e1b4b 0%, transparent 40%), radial-gradient(circle at 80% 70%, #312e81 0%, transparent 40%); opacity: 0.5; }
-        #video-feed { scroll-snap-type: y mandatory; overflow-y: scroll; height: 100vh; scrollbar-width: none; }
-        #video-feed::-webkit-scrollbar { display: none; }
-        .video-card { scroll-snap-align: start; height: 100vh; width: 100%; position: relative; }
-        .paywall-overlay { background: rgba(2, 6, 23, 0.9); backdrop-filter: blur(8px); }
-        .modal-enter { animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    </style>
-</head>
-<body>
-    <div class="mesh-bg"></div>
-
-    <!-- HEADER -->
-    <header class="fixed top-0 w-full z-[100] px-4 py-3 glass flex justify-between items-center border-b border-white/5">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-purple-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                <i class="fas fa-atom text-white text-xl"></i>
-            </div>
-            <div class="hidden sm:block text-right">
-                <h1 class="text-xs font-black text-white">پایگاه حقیقت علمی</h1>
-                <div class="flex gap-2 text-[9px] text-indigo-400 font-bold">
-                    <a href="https://ble.ir/habibz" target="_blank">Bale</a> • 
-                    <a href="https://t.me/habibz" target="_blank">Telegram</a> • 
-                    <a href="https://instagram.com/habibz" target="_blank">Instagram</a>
-                </div>
-            </div>
-        </div>
-        <button id="wallet-btn" class="glass px-4 py-2 text-[10px] font-bold flex items-center gap-2">
-            <i id="wallet-icon" class="fas fa-wallet text-indigo-400"></i>
-            <span id="wallet-status">اتصال به Web3</span>
-        </button>
-    </header>
-
-    <!-- MAIN FEED -->
-    <main id="app-root" class="pt-16 h-screen flex justify-center">
-        <section id="video-feed" class="max-w-[500px] w-full"></section>
-    </main>
-
-    <!-- BOTTOM NAV -->
-    <footer class="fixed bottom-0 w-full z-[100] px-6 py-3 glass rounded-t-[32px] flex justify-between items-center max-w-md left-1/2 -translate-x-1/2 border-x-0 border-b-0">
-        <button onclick="App.view('feed')" class="flex flex-col items-center text-indigo-400"><i class="fas fa-home text-lg"></i><span class="text-[10px] mt-1">خانه</span></button>
-        <button onclick="App.openCreator()" class="flex flex-col items-center text-slate-500 hover:text-indigo-400"><i class="fas fa-plus-circle text-2xl"></i><span class="text-[10px] mt-1">ارسال</span></button>
-        <button onclick="App.view('market')" class="flex flex-col items-center text-slate-500 hover:text-indigo-400"><i class="fas fa-gem text-lg"></i><span class="text-[10px] mt-1">NFTs</span></button>
-        <button onclick="App.view('profile')" class="flex flex-col items-center text-slate-500 hover:text-indigo-400"><i class="fas fa-user text-lg"></i><span class="text-[10px] mt-1">من</span></button>
-    </footer>
-
-    <!-- MODAL: PAYMENT / ACCESS CODE (Step 16-18) -->
-    <div id="payment-modal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4">
-        <div class="paywall-overlay absolute inset-0" onclick="App.closeModals()"></div>
-        <div class="glass w-full max-w-sm rounded-3xl p-6 modal-enter relative z-10 text-center">
-            <i class="fas fa-lock text-indigo-500 text-4xl mb-4"></i>
-            <h2 class="text-xl font-bold mb-2">محتوای ویژه</h2>
-            <p class="text-sm text-slate-400 mb-6">برای تماشای کامل این ویدیو، پرداخت USDT انجام کنید یا کد دسترسی وارد کنید.</p>
-            
-            <div class="space-y-4">
-                <div class="bg-black/40 p-3 rounded-xl text-right">
-                    <p class="text-[10px] text-indigo-400 mb-1">آدرس پرداخت (TRC20):</p>
-                    <p class="text-xs font-mono break-all select-all">GAPGPTMASKTOKENj66vxxhih6X0X</p>
-                </div>
-                <input type="text" id="access-code-input" placeholder="کد دسترسی را وارد کنید..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500">
-                <button onclick="App.verifyCode()" class="w-full bg-indigo-600 py-3 rounded-xl font-bold">تایید کد</button>
-                <button onclick="App.closeModals()" class="text-xs text-slate-500">انصراف</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: CREATOR HUB (Step 21-25) -->
-    <div id="creator-modal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4">
-        <div class="paywall-overlay absolute inset-0" onclick="App.closeModals()"></div>
-        <div class="glass w-full max-w-sm rounded-3xl p-6 modal-enter relative z-10">
-            <h2 class="text-xl font-bold mb-4 text-right">ارسال محتوای جدید</h2>
-            <div class="space-y-4">
-                <input type="text" id="upload-title" placeholder="عنوان ویدیو" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm">
-                <input type="file" id="upload-file" class="w-full text-xs text-slate-400">
-                <button onclick="App.handleUpload()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 py-3 rounded-xl font-bold">درخواست ثبت و NFT</button>
-                <button onclick="App.closeModals()" class="w-full text-slate-500 text-sm">بستن</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <script>
-        const CONFIG = {
-            USDT_TRC20: "GAPGPTMASKTOKENj66vxxhih6X1X",
-            SOCIALS: { bale: "https://ble.ir/habibz", telegram: "https://t.me/habibz", instagram: "https://instagram.com/habibz" }
-        };
-
-        const App = {
-            state: { userConnected: false, userAddress: null, currentVideoLocked: false },
-
-            async init() {
-                this.applySecurity();
-                this.bindEvents();
-                this.loadFeed();
-            },
-
-            applySecurity() {
-                document.addEventListener('contextmenu', e => e.preventDefault());
-                document.onkeydown = e => {
-                    if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) return false;
-                };
-            },
-
-            bindEvents() {
-                document.getElementById('wallet-btn').addEventListener('click', () => this.connectWallet());
-            },
-
-            async connectWallet() {
-                if (typeof window.ethereum !== 'undefined') {
-                    const provider = new ethers.providers.Web3Provider(window.ethereum);
-                    const accounts = await provider.send("eth_requestAccounts", []);
-                    this.state.userAddress = accounts[0];
-                    this.state.userConnected = true;
-                    document.getElementById('wallet-status').innerText = this.state.userAddress.substring(0,6)+'...'+this.state.userAddress.substring(38);
-                    document.getElementById('wallet-icon').className = "fas fa-check-circle text-green-400";
-                } else { alert("MetaMask required"); }
-            },
-
-            loadFeed() {
-                const feed = document.getElementById('video-feed');
-                feed.innerHTML = '';
-                const mocks = [
-                    { id: 1, title: "آموزش Web3 پیشرفته", creator: "habibz", url: "https://www.w3schools.com/html/mov_bbb.mp4", isLocked: true },
-                    { id: 2, title: "مستند علمی آینده", creator: "science_hub", url: "https://www.w3schools.com/html/mov_bbb.mp4", isLocked: false }
-                ];
-
-                mocks.forEach(v => {
-                    const card = document.createElement('div');
-                    card.className = "video-card";
-                    card.innerHTML = `
-                        <video id="vid-${v.id}" class="h-full w-full object-cover" playsinline controlsList="nodownload" onplay="App.handlePlay(${v.id}, ${v.isLocked})">
-                            <source src="${v.url}" type="video/mp4">
-                        </video>
-                        <div class="absolute bottom-0 w-full p-6 bg-gradient-to-t from-black/90 to-transparent text-right">
-                            <h3 class="text-white font-bold">${v.title}</h3>
-                            <p class="text-slate-300 text-xs">@${v.creator}</p>
-                        </div>
-                        ${v.isLocked ? `<div id="lock-overlay-${v.id}" class="absolute inset-0 paywall-overlay flex items-center justify-center z-10"><i class="fas fa-lock text-4xl"></i></div>` : ''}
-                    `;
-                    feed.appendChild(card);
-                });
-            },
-
-            // Step 16: Paywall Timer Logic
-            handlePlay(id, isLocked) {
-                if (isLocked && !this.state.userConnected) {
-                    const video = document.getElementById(`vid-${id}`);
-                    video.pause();
-                    this.openPayment();
-                } else if (isLocked) {
-                    // Preview for 5 seconds then lock
-                    const video = document.getElementById(`vid-${id}`);
-                    setTimeout(() => {
-                        if (!this.state.userConnected) {
-                            video.pause();
-                            video.currentTime = 0;
-                            this.openPayment();
-                        }
-                    }, 5000);
-                }
-            },
-
-            openPayment() {
-                document.getElementById('payment-modal').style.display = 'flex';
-            },
-
-            closeModals() {
-                document.querySelectorAll('[id$="-modal"]').forEach(m => m.style.display = 'none');
-            },
-
-            verifyCode() {
-                const code = document.getElementById('access-code-input').value;
-                if (code === "1234") { // Dummy code for demo
-                    alert("کد تایید شد!");
-                    this.closeModals();
-                } else { alert("کد اشتباه است."); }
-            },
-
-            openCreator() {
-                if (!this.state.userConnected) return alert("ابتدا متصل شوید");
+```html
+پایگاه حقیقت علمی | آرشیو غیرقابل سانسور
+:root {
+--primary-color: #00d4ff;
+--bg-dark: #0a0a0c;
+--accent-color: #0056b3;
+--text-color: #e0e0e0;
+}
+‌
+body, html {
+margin: 0;
+padding: 0;
+width: 100%;
+height: 100%;
+overflow-x: hidden;
+background-color: var(--bg-dark);
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+color: var(--text-color);
+}
+‌
+/پس‌زمینه متحرک /
+#bg-canvas {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+z-index: -1;
+background: radial-gradient(circle at center, #112244 0%, #0a0a0c 100%);
+}
+‌
+.container {
+max-width: 1000px;
+margin: 0 auto;
+padding: 20px;
+text-align: center;
+}
+‌
+header {
+padding: 60px 0;
+animation: fadeInDown 1.5s ease;
+}
+‌
+h1 {
+font-size: 3rem;
+color: var(--primary-color);
+text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+margin-bottom: 10px;
+}
+‌
+.subtitle {
+font-size: 1.2rem;
+opacity: 0.8;
+margin-bottom: 30px;
+}
+‌
+/بخش ویدیوها /
+.video-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+gap: 25px;
+margin-top: 40px;
+}
+‌
+.video-card {
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid rgba(0, 212, 255, 0.2);
+border-radius: 20px;
+padding: 15px;
+backdrop-filter: blur(10px);
+transition: transform 0.3s ease, border-color 0.3s ease;
+cursor: pointer;
+}
+‌
+.video-card:hover {
+transform: translateY(-10px);
+border-color: var(--primary-color);
+box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+}
+‌
+.video-placeholder {
+width: 100%;
+height: 180px;
+background: #1a1a1a;
+border-radius: 12px;
+display: flex;
+align-items: center;
+justify-content: center;
+color: var(--primary-color);
+font-weight: bold;
+margin-bottom: 15px;
+border: 1px dashed var(--primary-color);
+}
+‌
+.payment-box {
+margin-top: 60px;
+padding: 30px;
+background: linear-gradient(135deg, rgba(0, 86, 179, 0.2), rgba(0, 212, 255, 0.1));
+border-radius: 30px;
+border: 2px solid var(--primary-color);
+animation: fadeInUp 2s ease;
+}
+‌
+.btn-pay {
+background: var(--primary-color);
+color: #000;
+padding: 15px 40px;
+border-radius: 50px;
+text-decoration: none;
+font-weight: bold;
+font-size: 1.1rem;
+display: inline-block;
+margin-top: 20px;
+transition: 0.3s;
+}
+‌
+.btn-pay:hover {
+box-shadow: 0 0 30px var(--primary-color);
+transform: scale(1.05);
+}
+‌
+@keyframes fadeInDown {
+from { opacity: 0; transform: translateY(-30px); }
+to { opacity: 1; transform: translateY(0); }
+}
+‌
+@keyframes fadeInUp {
+from { opacity: 0; transform: translateY(30px); }
+to { opacity: 1; transform: translateY(0);
