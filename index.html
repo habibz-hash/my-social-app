@@ -1,203 +1,91 @@
 <!DOCTYPE html>
-پایگاه حقیقت علمی | Scientific Truth Base
-‌
-‌
-body {
-font-family: 'Vazirmatn', sans-serif;
-background-color: #050505;
-color: #e5e5e5;
-overflow-x: hidden;
-}
-.glass {
-background: rgba(255, 255, 255, 0.03);
-backdrop-filter: blur(12px);
-border: 1px solid rgba(255, 255, 255, 0.05);
-}
-.reel-card {
-height: 100vh;
-scroll-snap-align: start;
-position: relative;
-overflow: hidden;
-}
-.reels-container {
-height: 100vh;
-overflow-y: scroll;
-scroll-snap-type: y mandatory;
-scrollbar-width: none;
-}
-.reels-container::-webkit-scrollbar { display: none; }
-.gradient-overlay {
-background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0) 100%);
-}
-.active-nav {
-color: #06b6d4;
-border-bottom: 2px solid #06b6d4;
-}
-@keyframes pulse-cyan {
-0%, 100% { opacity: 1; }
-50% { opacity: 0.5; }
-}
-.loading-pulse { animation: pulse-cyan 2s infinite; }
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #050505; }
-::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
-.wallet-connected {
-box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-border-color: #3b82f6 !important;
-}
-پایگاه حقیقت علمی
-‌
-‌
+پلتفرم پژوهشی Web3
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700;900&display=swap');
+body { font-family: 'Vazirmatn', sans-serif; background-color: #0f172a; color: white; }
+.glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+.tab-content { display: none; }
+.tab-content.block { display: block; }
+Habibz-Hash Web3
+فید
+بازار
+آپلود
+پروفایل
 اتصال کیف پول
 ‌
+فید ویدئوهای پژوهشی
+برای دسترسی به دانش تخصصی، هزینه دسترسی را پرداخت کنید
+قیمت: 0.01 ETH
+رازهای مکانیک کوانتومی
+بررسی جامع نظریات جدید در فیزیک ذرات
+قیمت: 0.02 ETH
+ساختار مغز انسان
+تحلیلی بر پیوندهای عصبی و حافظه بلندمدت
+بخش بازار در حال توسعه است
+بخش آپلود در حال توسعه است
+بخش پروفایل در حال توسعه است
 ‌
-بازار NFT علمی
+دسترسی محدود
+برای تماشای ویدئوی ، باید مبلغ  ETH را پرداخت کنید.
+پرداخت و باز کردن قفل
+انصراف
 ‌
-ارسال یافته‌های علمی
-ویدئوهای خود را ارسال کنید تا پس از تایید، به صورت NFT در بازار قرار گیرند.
-عنوان تحقیق
-فایل ویدئویی
-کلیک کنید یا فایل را بکشید
-ثبت و ارسال برای ضرب NFT
+let walletState = { address: null, signer: null };
+let currentVideo = { title: '', price: '' };
 ‌
-کاربر مهمان
-Not Connected
-0
-ویدئو
-0
-NFT
-0
-دنبال‌کننده
-مجموعه NFTهای من
-‌
-‌
-// --- GLOBAL STATE ---
-let walletAddress = null;
-const state = {
-currentSection: 'feed',
-isConnecting: false,
-videos: [
-{ id: 1, url: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-the-night-sky-11640-large.mp4', user: '0x71C...4F2', title: 'نظم ستارگان و جریان آب' },
-{ id: 2, url: 'https://assets.mixkit.co/videos/preview/mixkit-water-waves-in-slow-motion-1204-large.mp4', user: '0x12A...99B', title: 'امواج حیات در مقیاس اتمی' },
-{ id: 3, url: 'https://assets.mixkit.co/videos/preview/mixkit-waves-in-the-water-1164-large.mp4', user: 'Habib_Zirak', title: 'فرکانس‌های بنیادین هسته' }
-]
-};
-‌
-// --- ROUTING ---
-function showSection(sectionId) {
-document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
-document.getElementById(`${sectionId}-section`).classList.remove('hidden');
-document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active-nav'));
-state.currentSection = sectionId;
-if(sectionId === 'feed') initReels();
-if(sectionId === 'market') loadNFTMarket();
-if(sectionId === 'profile') refreshUserProfile();
-window.scrollTo(0,0);
+function showTab(tabId) {
+document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('block'));
+document.getElementById(tabId).classList.add('block');
 }
 ‌
-// --- WEB3 CONNECTION ---
 async function connectWallet() {
-if (state.isConnecting) return;
-state.isConnecting = true;
-const btn = document.getElementById('connect-wallet-btn');
-btn.innerHTML = ' در حال اتصال...';
-‌
-try {
 if (window.ethereum) {
+try {
 const provider = new ethers.providers.Web3Provider(window.ethereum);
-const accounts = await provider.send("eth_requestAccounts", []);
-walletAddress = accounts[0];
-document.getElementById('wallet-addr-display').innerText = walletAddress.substring(0,6) + '...' + walletAddress.substring(walletAddress.length-4);
-document.getElementById('wallet-addr-display').classList.remove('hidden');
-btn.classList.add('hidden');
-refreshUserProfile();
+await provider.send("eth_requestAccounts", []);
+const signer = provider.getSigner();
+walletState.address = await signer.getAddress();
+walletState.signer = signer;
+document.getElementById('connect-btn').innerText = walletState.address.substring(0,6) + '...' + walletState.address.substring(38);
+alert("کیف پول با موفقیت متصل شد!");
+} catch (error) {
+alert("خطا در اتصال به کیف پول");
+}
 } else {
-alert("لطفا MetaMask را نصب کنید.");
-}
-} catch (e) {
-alert("خطا در اتصال: " + e.message);
-} finally {
-state.isConnecting = false;
-btn.innerHTML = 'اتصال کیف پول';
+alert("لطفا متاماسک را نصب کنید");
 }
 }
 ‌
-// --- REELS ENGINE ---
-function initReels() {
-const wrapper = document.getElementById('reels-wrapper');
-if (!wrapper) return;
-wrapper.innerHTML = '';
-state.videos.forEach(v => {
-const card = document.createElement('div');
-card.className = 'reel-card w-full flex flex-col items-center justify-center bg-black';
-card.innerHTML = `
-@${v.user}
-${v.title}
-1.2k
-45
-`;
-wrapper.appendChild(card);
+function openPaywall(title, price) {
+currentVideo.title = title;
+currentVideo.price = price;
+document.getElementById('video-title').textContent = title;
+document.getElementById('video-price').textContent = price;
+document.getElementById('paywall-modal').classList.remove('hidden');
+}
+‌
+function closePaywall() {
+document.getElementById('paywall-modal').classList.add('hidden');
+}
+‌
+async function processPayment() {
+if (!walletState.signer) {
+alert("لطفاً ابتدا کیف پول خود را متصل کنید");
+closePaywall();
+return;
+}
+try {
+const tx = await walletState.signer.sendTransaction({
+to: "آدرس_کیف_پول_خودت_را_اینجا_بگذار",
+value: ethers.utils.parseEther(currentVideo.price)
 });
-‌
-const observer = new IntersectionObserver((entries) => {
-entries.forEach(entry => {
-const video = entry.target.querySelector('video');
-if (video) {
-entry.isIntersecting ? video.play().catch(()=>{}) : video.pause();
+alert("در حال تایید تراکنش در شبکه... لطفا صبر کنید");
+await tx.wait();
+alert("پرداخت با موفقیت انجام شد! قفل باز شد.");
+closePaywall();
+} catch (error) {
+alert("تراکنش لغو شد یا خطایی رخ داد");
 }
-});
-}, { threshold: 0.7 });
-document.querySelectorAll('.reel-card').forEach(card => observer.observe(card));
 }
-function togglePlay(v) { v.paused ? v.play() : v.pause(); }
-‌
-// --- NFT MARKET ---
-function loadNFTMarket() {
-const list = document.getElementById('nft-list');
-if (!list) return;
-const mockNFTs = [
-{ id: 101, title: "قانون اپراتور آب", price: "0.05 ETH", image: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&q=80&w=400" },
-{ id: 102, title: "ساختار خلأ کوانتومی", price: "0.12 ETH", image: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&q=80&w=400" },
-{ id: 103, title: "ارتباط اتم‌ها و آب", price: "0.08 ETH", image: "https://images.unsplash.com/photo-1551244072-5d12893278ab?auto=format&fit=crop&q=80&w=400" }
-];
-list.innerHTML = mockNFTs.map(nft => `
-${nft.title}
-${nft.price}
-خرید فوری
-`).join('');
-}
-‌
-// --- UPLOAD LOGIC ---
-async function submitResearch() {
-const title = document.getElementById('video-title').value;
-const file = document.getElementById('file-input').files[0];
-const btn = document.getElementById('submit-btn');
-if (!title || !file) return alert("لطفاً عنوان و فایل را وارد کنید.");
-btn.disabled = true;
-btn.innerText = "در حال ارسال...";
-btn.classList.add('loading-pulse');
-setTimeout(() => {
-state.videos.unshift({ id: Date.now(), url: URL.createObjectURL(file), user: walletAddress ? walletAddress.substring(0,6)+'...' : 'Guest', title: title });
-btn.disabled = false;
-btn.innerText = "ثبت و ارسال برای ضرب NFT";
-btn.classList.remove('loading-pulse');
-alert("ارسال شد. پس از تایید، NFT شما ضرب خواهد شد.");
-showSection('feed');
-}, 3000);
-}
-‌
-// --- PROFILE ---
-function refreshUserProfile() {
-if (!walletAddress) return;
-document.getElementById('profile-user-addr').innerText = walletAddress;
-document.getElementById('profile-name').innerText = "پژوهشگر دیجیتال";
-}
-‌
-// --- BOOTSTRAP ---
-window.addEventListener('DOMContentLoaded', () => {
-initReels();
-console.log("Platform Ready for deployment on GitHub Pages.");});
 </script>
 </body>
 </html>
