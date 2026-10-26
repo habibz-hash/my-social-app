@@ -1,267 +1,400 @@
-<!DOCTYPE html>‌
-<html lang="fa" dir="rtl">‌
-<head>
+<!DOCTYPE html>
+<html lang="fa"dir="rtl">
+<head>‌
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>پایگاه حقیقت علمی | Web3 Video Research
-</title>
+<metaname="viewport"content="width=device-width, initial-scale=1.0">
+<title>
+حقیقت علمی | پلتفرم غیرمتمرکز محتوا
+</title>‌
 <script src="https://cdn.tailwindcss.com">
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js">
-</script>
-<script>tailwind.config = {darkMode: 'class',theme: {extend: {colors: {darkBg: '#090d16',
-glassBg: 'rgba(15, 23, 42, 0.75)',
-accent: '#6366f1',
-accentHover: '#4f46e5'
-}
-}
-}
-}
-</script>
-<style>@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700;900&display=swap');
-body {font-family: 'Vazirmatn', sans-serif;
-background-color: #090d16;
-color: white;
-scroll-behavior: smooth;
-}
-.glass-effect {background: rgba(15, 23, 42, 0.7);
-backdrop-filter: blur(16px);
-border: 1px solid rgba(255, 255, 255, 0.1);
-}
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-.video-card:hover {
-transform: translateY(-5px);
-box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.4);
-}
-</style>
-</head>
+</script>‌
+<script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"type="application/javascript">
+</script>‌
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;400;700;900&display=swap');
+body {font-family: 'Vazirmatn', sans-serif;background-color: #020617;}‌
+.glass-effect {background: rgba(30, 41, 59, 0.7);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+border: 1px solid rgba(255, 255, 255, 0.1);}
 ‌
-<body class="min-h-screen selection:bg-indigo-500 selection:text-white">
-<header class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-glassBg border-b border-slate-800/80 shadow-2xl">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-<div class="flex items-center space-x-3 space-x-reverse">
-<div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-</path>
-</svg>
+.gradient-text {
+background: linear-gradient(to right, #6366f1, #a855f7);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+}
+</style>‌
+</head>‌
+<body class="text-slate-200 antialiased">‌
+<nav class="fixed top-0 w-full z-50 glass-effect border-b border-slate-800 py-4 px-6">
+<div class="max-w-7xl mx-auto flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black text-white shadow-lg shadow-indigo-500/40">S
 </div>
-<div>
-<span class="text-xl font-black bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">
+<span class="text-xl font-black gradient-text">
 حقیقت علمی
 </span>
-<span class="block text-[10px] text-slate-400 tracking-widest uppercase">
-Web3 Video & Research Base
-</span>
 </div>
-</div>
-<nav class="hidden md:flex items-center space-x-1 space-x-reverse bg-slate-900/60 p-1.5 rounded-2xl border border-slate-800">
-<button onclick="switchTab('feed')" id="nav-feed" class="px-5 py-2 rounded-xl text-sm font-medium transition-all duration-300 bg-indigo-600 text-white shadow-md">
-فید ویدئو
+<div class="flex items-center gap-4">
+<button id="nav-home"onclick="switchTab('home')"class="px-4 py-2 rounded-lg bg-indigo-600 text-white shadow-md font-bold transition-all text-sm">
+خانه
 </button>
-<button onclick="switchTab('market')" id="nav-market" class="px-5 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white transition-all duration-300">
+<button id="nav-market"onclick="switchTab('market')"class="px-4 py-2 rounded-lg text-slate-400 font-medium transition-all text-sm hover:text-white">
 بازار NFT
 </button>
-<button onclick="switchTab('upload')" id="nav-upload" class="px-5 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white transition-all duration-300">
-آپلود
-</button>
-<button onclick="switchTab('profile')" id="nav-profile" class="px-5 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white transition-all duration-300">
+<button id="nav-profile"onclick="switchTab('profile')"class="px-4 py-2 rounded-lg text-slate-400 font-medium transition-all text-sm hover:text-white">
 پروفایل
 </button>
-</nav>‌
-<div class="flex items-center space-x-3 space-x-reverse">
-<button id="connect-wallet-btn" onclick="connectWallet()" class="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-full font-bold text-white transition-all shadow-lg shadow-indigo-600/30 active:scale-95">
+<button id="connect-wallet-btn"onclick="connectWallet()"class="ml-4 px-6 py-2 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold text-sm shadow-xl hover:scale-105 transition-all">
 اتصال کیف پول
 </button>
 </div>
 </div>
-</header>
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16">
-<section id="section-feed" class="tab-content active">
-<div class="mb-12 text-center">
-<h1 class="text-4xl md:text-5xl font-black text-white mb-4">
-فید ویدئوهای پژوهشی
+</nav>‌
+مرحله ۲ از ۱۰ (بخش اصلی و نمایش محتواها - باز و ستونی)
+<main class="pt-24 pb-12 px-4 max-w-7xl mx-auto">
+<section id="section-home"class="tab-content active space-y-12">‌
+<div class="text-center py-10">
+<h1 class="text-5xl font-black text-white mb-4 leading-tight">
+دسترسی به دانش ممنوعه
 </h1>
 <p class="text-slate-400 text-lg max-w-2xl mx-auto">
-به پیشرفته‌ترین محتواهای علمی دسترسی پیدا کنید. پرداخت مستقیم در شبکه اتریوم برای تماشای هر ویدئو.
+اولین کتابخانه غیرمتمرکز جهان که در آن محتواها توسط قراردادهای هوشمند محافظت شده‌اند.
 </p>
-</div>
+</div>‌
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-<!-- کارت ویدئو اول -->
-<div class="video-card bg-slate-900/60 border border-slate-800 rounded-3xl overflow-hidden transition-all duration-300 group">
-<div class="aspect-video bg-slate-800 relative overflow-hidden">
-<div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10">
+<div class="glass-effect rounded-3xl overflow-hidden group hover:border-indigo-500/50 transition-all cursor-pointer"onclick="openPaywall('رازهای فیزیک کوانتوم', '0.01')">
+<div class="relative h-48 bg-slate-800 overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent z-10">
 </div>
-<span class="absolute top-4 right-4 z-20 text-[10px] px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 font-bold">
-فیزیک کوانتوم
-</span>
-<button onclick="openPaywall('بررسی مکانیک کوانتومی', '0.01')" class="absolute inset-0 m-auto w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform z-20 group-hover:bg-indigo-500">
-<svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-<path d="M4.5 3.5v13l11-6.5-11-6.5z"</path>
-</svg>
-</button>
-</div>
-<div class="p-6">
-<h3 class="text-xl font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">
-رازهای مکانیک کوانتومی پیشرفته
-</h3>
-<p class="text-sm text-slate-400 mb-6">
-در این ویدئو به بررسی تداخل موجی و گربه شرودینگر از دیدگاه جدید می‌پردازیم.
-</p>
-<div class="flex items-center justify-between pt-4 border-t border-slate-800">
-<span class="text-emerald-400 font-mono font-bold">0.01 ETH
-</span>
-<button onclick="openPaywall('بررسی مکانیک کوانتومی', '0.01')" class="px-4 py-2 bg-slate-800 hover:bg-indigo-600 rounded-xl text-xs font-bold transition-all">
-پرداخت و تماشا
-</button>
-</div>
-</div>
-</div>
-<!-- کارت ویدئو دوم -->
-<div class="video-card bg-slate-900/60 border border-slate-800 rounded-3xl overflow-hidden transition-all duration-300 group">
-<div class="aspect-video bg-slate-800 relative overflow-hidden">
-<div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent z-10">
-</div>
-<span class="absolute top-4 right-4 z-20 text-[10px] px-3 py-1 rounded-full bg-violet-500/20 border border-violet-500/30 text-violet-300 font-bold">
-علوم اعصاب
-</span>
-<button onclick="openPaywall('ساختار مغز انسان', '0.02')" class="absolute inset-0 m-auto w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform z-20 group-hover:bg-indigo-500">
-<svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-<pathd="M4.5 3.5v13l11-6.5-11-6.5z"
-</path>
-</svg>
-</button>
-</div>
-<div class="p-6">
-<h3 class="text-xl font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">
-تحلیل پیوندهای عصبی مغز
-</h3>
-<p class="text-sm text-slate-400 mb-6">
-بررسی نحوه انتقال اطلاعات در سیناپس‌ها و تاثیر آن بر حافظه بلند مدت.
-</p>
-<div class="flex items-center justify-between pt-4 border-t border-slate-800">
-<span class="text-emerald-400 font-mono font-bold">0.02 ETH
-</span>
-<button onclick="openPaywall('ساختار مغز انسان', '0.02')" class="px-4 py-2 bg-slate-800 hover:bg-indigo-600 rounded-xl text-xs font-bold transition-all">
-پرداخت و تماشا
-</button>
-</div>
-</div>
-</div>
-</div>
-</section>‌
-<sectionid="section-market" class="tab-content hidden text-center py-32">
-<div class="glass-effect max-w-lg mx-auto p-12 rounded-3xl border-dashed border-2 border-slate-700">
-<h2 class="text-3xl font-bold mb-4">
-بازار NFT در حال آماده‌سازی است
-</h2>
-<p class="text-slate-400">
-به زودی می‌توانید مقالات و ویدئوها را به صورت توکن‌های منحصر به فرد خرید و فروش کنید.
-</p>
-</div>
-</section>‌
-<sectionid="section-upload" class="tab-content hidden text-center py-32">
-<div class="glass-effect max-w-lg mx-auto p-12 rounded-3xl border-dashed border-2 border-slate-700">
-<h2 class="text-3xl font-bold mb-4">
-پنل آپلود محتوا
-</h2>
-<p class="text-slate-400">
-سیستم اتصال به IPFS برای ذخیره‌سازی غیرمتمرکز در حال پیاده‌سازی است.
-</p>
-</div>
-</section>‌
-<sectionid="section-profile" class="tab-content hidden py-32">
-<div class="max-w-md mx-auto glass-effect p-8 rounded-3xl text-center">
-<h2 class="text-3xl font-bold mb-6">
-پروفایل Web3
-</h2>
-<div id="profile-info" class="space-y-4">
-<p class="text-slate-400">
-وضعیت: <span id="profile-status" class="text-amber-500 font-bold">
-متصل نشده
-</span>
-</p>
-<div id="profile-details" class="hidden space-y-2">
-<p class="text-xs font-mono text-indigo-400 break-all">
-آدرس: <span id="profile-address">
-</span>
-</p>
-<p class="text-lg font-bold text-emerald-400">
-موجودی: <span id="profile-balance">0 ETH
-</span>
-</p>
-</div>
-</div>
-</div>
-</section>‌
-</main>
-<div id="paywall-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-xl bg-slate-950/80">
-<div class="glass-effect max-w-md w-full p-8 rounded-3xl border border-indigo-500/30 shadow-2xl text-center scale-up">
-<div class="w-20 h-20 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-indigo-500/50">
-<svg class="w-10 h-10 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-<pathstroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+<div class="absolute inset-0 flex items-center justify-center z-20">
+<svg class="w-16 h-16 text-white/20 group-hover:text-indigo-500 transition-all"fill="currentColor"viewBox="0 0 20 20">
+<path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z">
 </path>
 </svg>
 </div>
-<h2 class="text-2xl font-black text-white mb-2">
-دسترسی محدود
-</h2>
-<p class="text-slate-400 mb-8">
-برای تماشای ویدئوی  باید مبلغ  اتریوم پرداخت کنید.
+</div>
+<div class="p-6">
+<h3 class="text-xl font-bold text-white mb-2">
+رازهای فیزیک کوانتوم
+</h3>
+<p class="text-slate-400 text-sm mb-4">
+بررسی عمیق مکانیک کوانتوم و اثر آن بر واقعیت.
 </p>
-<div class="flex flex-col space-y-3">
-<button id="pay-now-btn" onclick="processPayment()" class="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-2xl font-bold text-white transition-all shadow-lg shadow-indigo-600/30">
-پرداخت و باز کردن قفل
+<div class="flex justify-between items-center">
+<span class="text-emerald-400 font-bold text-sm">0.01 ETH
+</span>
+<span class="text-xs bg-slate-700 px-3 py-1 rounded-full text-slate-300">
+قفل شده 🔒
+</span>
+</div>
+</div>
+</div>
+<div class="glass-effect rounded-3xl overflow-hidden group hover:border-indigo-500/50 transition-all cursor-pointer"onclick="openPaywall('آینده هوش مصنوعی', '0.02')">
+<div class="relative h-48 bg-slate-800 overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent z-10">
+</div>
+<div class="absolute inset-0 flex items-center justify-center z-20">
+<svg class="w-16 h-16 text-white/20 group-hover:text-indigo-500 transition-all"fill="currentColor"viewBox="0 0 20 20">
+<path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z">
+</path>
+</svg>
+</div>
+</div>
+<div class="p-6">
+<h3 class="text-xl font-bold text-white mb-2">
+آینده هوش مصنوعی
+</h3>
+<p class="text-slate-400 text-sm mb-4">
+تحلیلی بر تکینگی و جایگاه انسان در دنیای AI.
+</p>
+<div class="flex justify-between items-center">
+<span class="text-emerald-400 font-bold text-sm">0.02 ETH
+</span>
+<span class="text-xs bg-slate-700 px-3 py-1 rounded-full text-slate-300">
+قفل شده 🔒
+</span>
+</div>
+</div>
+</div>
+<div class="glass-effect rounded-3xl overflow-hidden group hover:border-indigo-500/50 transition-all cursor-pointer"onclick="openPaywall('تاریخچه علم ممنوعه', '0.015')">
+<div class="relative h-48 bg-slate-800 overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent z-10">
+</div>
+<div class="absolute inset-0 flex items-center justify-center z-20">
+<svg class="w-16 h-16 text-white/20 group-hover:text-indigo-500 transition-all"fill="currentColor"viewBox="0 0 20 20">
+<path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z">
+</path>
+</svg>
+</div>
+</div>
+<div class="p-6">
+<h3 class="text-xl font-bold text-white mb-2">
+تاریخچه علم ممنوعه
+</h3>
+<p class="text-slate-400 text-sm mb-4">
+کتابخانه‌های سوخته شده و دانش‌های گمشده بشریت.
+</p>
+<div class="flex justify-between items-center">
+<span class="text-emerald-400 font-bold text-sm">0.015 ETH
+</span>
+<span class="text-xs bg-slate-700 px-3 py-1 rounded-full text-slate-300">
+قفل شده 🔒
+</span>
+</div>
+</div>
+</div>‌
+</div>‌
+</section>
+<section id="section-market"class="tab-content hidden">
+<div class="flex flex-col items-center justify-center py-20 text-center">
+<div class="glass-effect max-w-2xl w-full p-12 rounded-3xl border-dashed border-2 border-indigo-500/30">
+<div class="w-20 h-20 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-500">
+<svg class="w-10 h-10"fill="none"stroke="currentColor"viewBox="0 0 24 24">
+<path stroke-linecap="round"stroke-linejoin="round"stroke-width="2"d="M13 10V3L4 14h7v7l9-11h-7z">
+</path>
+</svg>
+</div>
+<h2 class="text-3xl font-black text-white mb-4">
+بازار NFT محتواهای علمی
+</h2>
+<p class="text-slate-400 text-lg leading-relaxed mb-8">
+به زودی می‌توانید مالکیت هر ویدئو یا مقاله پژوهشی را به صورت یک توکن منحصر به فرد (NFT) خریداری کرده و در بازار ثانویه معامله کنید.
+</p>
+<div class="inline-flex items-center px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-bold">
+در حال توسعه روی شبکه Polygon
+</div>
+</div>
+</div>
+</section>‌
+<section id="section-upload"class="tab-content hidden">
+<div class="flex flex-col items-center justify-center py-20 text-center">
+<div class="glass-effect max-w-2xl w-full p-12 rounded-3xl border-dashed border-2 border-violet-500/30">
+<div class="w-20 h-20 bg-violet-600/20 rounded-full flex items-center justify-center mx-auto mb-6 text-violet-500">
+<svg class="w-10 h-10"fill="none"stroke="currentColor"viewBox="0 0 24 24">
+<path stroke-linecap="round"stroke-linejoin="round"stroke-width="2"d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+</path>
+</svg>
+</div>
+<h2 class="text-3xl font-black text-white mb-4">
+پنل انتشار محتوای غیرمتمرکز
+</h2>
+<p class="text-slate-400 text-lg leading-relaxed mb-8">
+برای آپلود واقعی، محتوا باید روی IPFS ذخیره شود. ما در حال اتصال رابط کاربری به Gatewayهای Pinata و Infura هستیم تا فایل‌های شما برای همیشه غیرقابل حذف شوند.
+</p>
+<div class="inline-flex items-center px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 text-sm font-bold">
+اتصال به IPFS در حال پیاده‌سازی
+</div>
+</div>
+</div>
+</section>
+<section id="section-profile"class="tab-content hidden">
+<div class="flex flex-col items-center justify-center py-10">
+<div class="glass-effect max-w-md w-full p-8 rounded-3xl text-center shadow-2xl border border-indigo-500/20">
+<div class="relative w-24 h-24 mx-auto mb-6">
+<div class="absolute inset-0 bg-indigo-600 rounded-full blur-xl opacity-50 animate-pulse">
+</div>
+<div class="relative w-full h-full rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-3xl font-black text-white border-4 border-slate-900">U
+</div>
+</div>
+<h2 class="text-3xl font-black text-white mb-2">
+پروفایل کاربر
+</h2>
+<p id="profile-status"class="text-amber-500 font-bold text-sm mb-6">
+وضعیت: متصل نشده
+</p>
+<div id="profile-details"class="hidden space-y-6 text-right">
+<div class="p-4 rounded-2xl bg-slate-800/50 border border-slate-700">
+<span class="block text-xs text-slate-400 mb-1">
+آدرس کیف پول
+</span>
+<span id="profile-address"class="block text-xs font-mono text-indigo-300 break-all">0x...
+</span>
+</div>‌
+<div class="p-4 rounded-2xl bg-slate-800/50 border border-slate-700">
+<span class="block text-xs text-slate-400 mb-1">
+موجودی فعلی
+</span>
+<span id="profile-balance"class="block text-2xl font-black text-emerald-400">0.00 ETH
+</span>
+</div>
+<div class="p-4 rounded-2xl bg-slate-800/50 border border-slate-700">
+<span class="block text-xs text-slate-400 mb-1">
+سطح دسترسی
+</span>‌
+<span class="block text-sm font-bold text-white">
+کاربر تایید شده Web3
+</span>
+</div>
+</div>
+<button id="disconnect-wallet-btn"onclick="disconnectWallet()"class="hidden mt-8 w-full py-3 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 font-bold hover:bg-red-500 hover:text-white transition-all">
+قطع اتصال کیف پول
+</button>‌
+</div>‌
+</div>
+</section>
+<div id="paywall-modal"class="fixed inset-0 z-[100] hidden">
+<div class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm"onclick="closePaywall()">
+</div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
+<div class="glass-effect rounded-3xl p-8 border border-indigo-500/30 shadow-2xl text-center">
+<divclass="w-20 h-20 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-500">
+<svg class="w-10 h-10"fill="none"stroke="currentColor"viewBox="0 0 24 24">
+<path stroke-linecap="round"stroke-linejoin="round"stroke-width="2"d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+</path>
+</svg>
+</div>
+<h3 class="text-2xl font-black text-white mb-2">
+باز کردن قفل محتوا
+</h3>
+<p id="paywall-title"class="text-slate-400 mb-6">
+نام ویدئو در اینجا قرار می‌گیرد
+</p>
+<div class="bg-slate-900/80 rounded-2xl p-6 mb-8 border border-slate-700">
+<span class="block text-xs text-slate-500 mb-2">
+مبلغ مورد نیاز برای پرداخت
+</span>
+<span id="paywall-amount"class="text-4xl font-black text-emerald-400">0.00 ETH
+</span>‌
+</div>
+<button id="confirm-payment-btn"onclick="processPayment()"class="w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black text-lg shadow-xl shadow-indigo-500/30 hover:scale-[1.02] active:scale-95 transition-all">
+تایید پرداخت و مشاهده
 </button>
-<button onclick="closePaywall()" class="w-full py-3 text-slate-500 hover:text-white transition-colors text-sm">
+<button onclick="closePaywall()"class="mt-4 text-slate-500 hover:text-white text-sm font-medium transition-colors">
 انصراف
 </button>
 </div>
 </div>
-</div>‌
+</div>
 <script>
-// --- تنظیمات کیف پول تو ---
-const MY_WALLET_ADDRESS = "آدرس_کیف_پول_خودت_را_اینجا_بگذار";
-let walletState = { address: null, provider: null, signer: null };
-function switchTab(tabId) {document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-document.querySelectorAll('.nav-btn, button[id^="nav-"]').forEach(btn => {btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
-btn.classList.add('text-slate-400');
+function switchTab(tabId) {// ۱. مخفی کردن تمام محتویات تب‌هاconst tabs = document.querySelectorAll('.tab-content');
+tabs.forEach(tab => {tab.classList.add('hidden');
+tab.classList.remove('active');
+});‌
+// ۲. نمایش تب انتخاب شده
+const activeTab = document.getElementById('section-' + tabId);
+if (activeTab) {activeTab.classList.remove('hidden');
+activeTab.classList.add('active');
+}
+// ۳. تغییر استایل دکمه‌های ناوبری (Navigation)
+const navButtons = document.querySelectorAll('nav button');
+navButtons.forEach(btn => {btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md', 'font-bold');
+btn.classList.add('text-slate-400', 'font-medium');
 });
-document.getElementById('section-' + tabId).classList.add('active');
-document.getElementById('nav-' + tabId).classList.add('bg-indigo-600', 'text-white', 'shadow-md');
-}
-async function connectWallet() {if (typeof window.ethereum !== 'undefined') {try {const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-walletState.address = accounts[0];
-walletState.provider = new ethers.providers.Web3Provider(window.ethereum);
-walletState.signer = walletState.provider.getSigner();
-document.getElementById('connect-wallet-btn').innerText = walletState.address.substring(0,6) + '...' + walletState.address.substring(38);
-updateProfile(true);
-} catch (err) { alert("اتصال لغو شد"); }
-  } else { alert("لطفاً متامسک نصب کنید"); }
-}
-function updateProfile(connected) {const status = document.getElementById('profile-status');
-const details = document.getElementById('profile-details');
-if(connected) {status.innerText = "متصل"; status.className = "text-emerald-500 font-bold";
-details.classList.remove('hidden');
-document.getElementById('profile-address').innerText = walletState.address;
+const activeBtn = document.getElementById('nav-' + tabId);
+if (activeBtn) {activeBtn.classList.remove('text-slate-400', 'font-medium');
+activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md', 'font-bold');
 }
 }
-let currentPrice = 0;
-function openPaywall(title, price) {currentPrice = price;
-document.getElementById('video-title').innerText = title;
-document.getElementById('video-price').innerText = price;
-document.getElementById('paywall-modal').classList.remove('hidden');
+// تابع باز کردن مودال پرداخت
+function openPaywall(title, amount) {const modal = document.getElementById('paywall-modal');
+document.getElementById('paywall-title').innerText = title;
+document.getElementById('paywall-amount').innerText = amount + ' ETH';
+modal.classList.remove('hidden');
 }
-function closePaywall() {document.getElementById('paywall-modal').classList.add('hidden');
-}
-async function processPayment() {if (!walletState.signer) { alert("اول کیف پول را متصل کنید"); return; }try {const tx = await walletState.signer.sendTransaction({to: MY_WALLET_ADDRESS,value: ethers.utils.parseEther(currentPrice)});
-alert("در حال تایید تراکنش... لطفا صبر کنید.");
-await tx.wait();
-alert("پرداخت موفق! ویدئو باز شد.");
-closePaywall();
-} catch (err) { alert("خطا در پرداخت: " + err.message); }
+// تابع بستن مودال پرداخت
+function closePaywall() {const modal = document.getElementById('paywall-modal');
+modal.classList.add('hidden');
 }
 </script>
+<script>
+let provider;
+let signer;
+let userAddress;
+async function connectWallet() {// بررسی اینکه آیا متامسک نصب است یا خیرif (typeof window.ethereum !== 'undefined') {try {// درخواست اجازه دسترسی به حساب‌ها از کاربرconst accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+// مقداردهی اولیه Ethers.jsprovider = new ethers.providers.Web3Provider(window.ethereum);
+signer = provider.getSigner();
+userAddress = accounts[0];
+// به‌روزرسانی ظاهر دکمه اتصال
+const btn = document.getElementById('connect-wallet-btn');
+btn.innerText = 'متصل شد ✅';
+btn.classList.replace('from-indigo-600', 'from-emerald-600');
+btn.classList.replace('to-violet-600', 'to-emerald-500');
+// نمایش جزئیات در بخش پروفایل
+document.getElementById('profile-status').innerText = 'وضعیت: متصل';
+document.getElementById('profile-status').classList.replace('text-amber-500', 'text-emerald-500');
+document.getElementById('profile-details').classList.remove('hidden');
+document.getElementById('disconnect-wallet-btn').classList.remove('hidden');
+// نمایش آدرس کوتاه شده
+document.getElementById('profile-address').innerText = userAddress;
+// دریافت و نمایش موجودی
+await updateBalance();
+} catch (error) {console.error("اتصال با خطا مواجه شد:", error);
+alert("لطفاً اجازه دسترسی به کیف پول را تایید کنید.");
+}
+} else {alert("لطفاً ابتدا افزونه MetaMask را روی مرورگر خود نصب کنید.");
+window.open('https://metamask.io/download/', '_blank');
+}
+}‌
+async function updateBalance() {if (provider && userAddress) {const balance = await provider.getBalance(userAddress);
+const formattedBalance = ethers.utils.formatEther(balance);
+document.getElementById('profile-balance').innerText = parseFloat(formattedBalance).toFixed(4) + ' ETH';
+}
+}
+function disconnectWallet() {// در متامسک قطع اتصال واقعی توسط کاربر انجام می‌شود، ما اینجا ظاهر را ریست می‌کنیمuserAddress = null;
+const btn = document.getElementById('connect-wallet-btn');
+btn.innerText = 'اتصال کیف پول';
+btn.classList.replace('from-emerald-600', 'from-indigo-600');
+btn.classList.replace('to-emerald-500', 'to-violet-600');
+document.getElementById('profile-status').innerText = 'وضعیت: متصل نشده';
+document.getElementById('profile-status').classList.replace('text-emerald-500', 'text-amber-500');
+document.getElementById('profile-details').classList.add('hidden');
+document.getElementById('disconnect-wallet-btn').classList.add('hidden');
+}
+</script>
+<script>
+async function processPayment() {// آدرس کیف پول تو (اینجا آدرس خودت را جایگزین کن)const myWalletAddress = 'YOUR_WALLET_ADDRESS_HERE';// استخراج مبلغ از متن مودال (مثلاً 0.01)
+const amountText = document.getElementById('paywall-amount').innerText;
+const amount = amountText.replace(' ETH', '');
+const payBtn = document.getElementById('confirm-payment-btn');
+try {// تغییر ظاهر دکمه برای نشان دادن در حال پردازشpayBtn.innerText = 'در حال ارتباط با شبکه...';
+payBtn.disabled = true;
+if (!signer || !userAddress) {alert('لطفاً ابتدا کیف پول خود را متصل کنید.');
+closePaywall();
+return;
+}
+// ایجاد تراکنش ارسال اتریوم
+const tx = await signer.sendTransaction({to: myWalletAddress,value: ethers.utils.parseEther(amount)});
+payBtn.innerText = 'در حال تایید تراکنش...';
+// منتظر ماندن تا تراکنش در شبکه تایید شود (Mining)
+await tx.wait();
+alert('پرداخت با موفقیت انجام شد! اکنون دسترسی شما باز شد.');
+closePaywall();
+// در اینجا می‌توان ویدئو را نمایش داد یا کاربر را به صفحه ویدئو منتقل کرد
+alert('لینک ویدئو برای شما فعال شد.');
+} catch (error) {console.error("خطای پرداخت:", error);
+if (error.code === 4001) {alert('تراکنش توسط کاربر رد شد.');
+} else {alert('خطایی در شبکه رخ داد. لطفاً موجودی خود را بررسی کنید.');
+}
+} finally {// بازگرداندن دکمه به حالت اولpayBtn.innerText = 'تایید پرداخت و مشاهده';
+payBtn.disabled = false;
+}
+}
+</script>
+</main>
+<footer class="bg-slate-950 border-t border-slate-800 py-12 text-center">
+<div class="max-w-7xl mx-auto px-4">
+<div class="text-indigo-500 font-black text-xl mb-4">
+حقیقت علمی
+</div>
+<p class="text-slate-500 text-sm max-w-md mx-auto leading-relaxed mb-8">
+اولین پایگاه داده غیرمتمرکز برای محتواهای پژوهشی پیشرفته بر بستر شبکه اتریوم و پروتکل IPFS.
+</p>
+<div class="flex justify-center space-x-6 space-x-reverse text-slate-400">
+<a href="#"class="hover:text-white transition-colors text-xs">
+قوانین وب۳
+</a>
+<a href="#"class="hover:text-white transition-colors text-xs">
+تماس با ما
+</a>
+<a href="#"class="hover:text-white transition-colors text-xs">
+مستندات فنی
+</a>
+</div>
+<div class="mt-8 pt-8 border-t border-slate-900 text-[10px] text-slate-600 uppercase tracking-widest">
+© 2026 Scientific Truth Base | All Rights Reserved
+</div>
+</div>
+</footer>
 </body>
 </html>
