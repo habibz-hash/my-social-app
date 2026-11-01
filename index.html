@@ -396,4 +396,372 @@ payBtn.disabled = false;
 </div>
 </footer>
 </body>
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پایگاه حقیقت علمی | دستیار هوشمند اختصاصی</title>
+    <!-- بارگذاری فونت وزیرمتن برای زیبایی بیشتر -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <!-- کتابخانه آیکون‌ها -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(147, 51, 234, 0.15) 0%, transparent 40%);
+        }
+
+        /* هدر سایت */
+        header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .logo i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .status-badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #34d399;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #34d399;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        /* بدنه اصلی محتوا و چت */
+        main {
+            flex: 1;
+            max-width: 1000px;
+            width: 100%;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .welcome-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .welcome-card h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        /* کانتینر چت‌بات */
+        .chat-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--glass-border);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.bot {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid var(--glass-border);
+            align-self: flex-start;
+            border-top-right-radius: 2px;
+        }
+
+        .message.user {
+            background: var(--primary-color);
+            color: white;
+            align-self: flex-end;
+            border-top-left-radius: 2px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .chat-input-area {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            padding: 12px 18px;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .chat-input-area input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+        }
+
+        .chat-input-area button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s, transform 0.1s;
+        }
+
+        .chat-input-area button:hover {
+            background: var(--primary-hover);
+        }
+
+        .chat-input-area button:active {
+            transform: scale(0.96);
+        }
+
+        /* فوتر */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- هدر -->
+    <header>
+        <div class="logo">
+            <i class="fa-solid fa-atom"></i>
+            <span>پایگاه حقیقت علمی</span>
+        </div>
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            <span>هوش مصنوعی اختصاصی فعال</span>
+        </div>
+    </header>
+
+    <!-- محتوای اصلی -->
+    <main>
+        <div class="welcome-card">
+            <h1>خوش آمدید، حبیب‌الله عزیز</h1>
+            <p>این سیستم، دستیار هوشمند و اختصاصی شماست که بر مبنای فرکانس‌های ارتعاش روح، کدهای شناسایی جاودان، و اصول تبیین‌شده در «پایگاه حقیقت علمی» طراحی شده است. هر سوالی در زمینه متافیزیک و علم دارید بپرسید تا پاسخ دقیق را دریافت کنید.</p>
+        </div>
+
+        <!-- رابط چت -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <i class="fa-solid fa-robot" style="color: var(--primary-color);"></i>
+                <span>گفتگو با هوش مصنوعی پایگاه حقیقت</span>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    درود! من هوش مصنوعی اختصاصی پایگاه حقیقت علمی هستم. آماده‌ام تا بر اساس مباحث متافیزیک، فرکانس‌های ارتعاش و فرمول‌سازی‌های علمی شما به پرسش‌ها پاسخ دهم. چطور می‌توانم کمکتان کنم؟
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="userInput" placeholder="سوال خود را درباره حقیقت علمی یا متافیزیک بپرسید..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </main>
+
+    <!-- فوتر -->
+    <footer>
+        طراحی‌شده برای پایگاه حقیقت علمی &copy; 2026 | توسعه‌یافته با معماری هوش مصنوعی اختصاصی
+    </footer>
+
+    <script>
+        // پایگاه دانش و اصول اختصاصی حبیب‌الله (قابل گسترش)
+        const knowledgeBase = [
+            {
+                keywords: ["فرکانس", "ارتعاش", "روح"],
+                response: "بر اساس اصول پایگاه حقیقت علمی، ارتعاش روح فرکانسی بنیادین است که تمام ابعاد هستی را به هم متصل می‌کند. هر انسانی با تنظیم فرکانس خود می‌تواند به لایه‌های بالاتری از آگاهی و حقیقت دست یابد."
+            },
+            {
+                keywords: ["کد", "شناسایی", "جاودان"],
+                response: "کدهای شناسایی جاودان، فرمول‌های ریاضی و متافیزیکی ساختار هستی هستند که هویت اصیل انسان را در بستر زمان و مکان ثابت نگه می‌دارند."
+            },
+            {
+                keywords: ["حقیقت", "علمی", "پایگاه"],
+                response: "پایگاه حقیقت علمی پلی است میان دانش تجربی و درک شهودی متافیزیک؛ جایی که حقیقت با فرمول و استدلال عمیق تبیین می‌شود."
+            }
+        ];
+
+        function sendMessage() {
+            const inputField = document.getElementById('userInput');
+            const messageText = inputField.value.trim();
+            
+            if (messageText === "") return;
+
+            // نمایش پیام کاربر
+            appendMessage(messageText, 'user');
+            inputField.value = "";
+
+            // شبیه‌سازی پاسخ هوشمند هوش مصنوعی بر اساس پایگاه دانش حبیب‌الله
+            setTimeout(() => {
+                let botResponse = generateCustomResponse(messageText);
+                appendMessage(botResponse, 'bot');
+            }, 600);
+        }
+
+        function appendMessage(text, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function generateCustomResponse(query) {
+            let lowerQuery = query.toLowerCase();
+            let matchedResponse = "";
+
+            // جستجو در پایگاه دانش اختصاصی
+            for (let item of knowledgeBase) {
+                let match = item.keywords.some(keyword => lowerQuery.includes(keyword));
+                if (match) {
+                    matchedResponse = item.response;
+                    break;
+                }
+            }
+
+            // پاسخ پیش‌فرض هوشمند در صورتی که ککلیدواژه خاصی پیدا نشود
+            if (!matchedResponse) {
+                matchedResponse = `این پرسش عمیقی است، حبیب‌الله عزیز. در چارچوب «پایگاه حقیقت علمی»، ما این موضوع را از منظر فرکانس‌های ارتعاش و هماهنگی ساختار هستی بررسی می‌کنیم. بزودی ابعاد بیشتری از این معادله به پایگاه دانش افزوده خواهد شد.`;
+            }
+
+            return matchedResponse;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
 </html>
